@@ -1,0 +1,18 @@
+{
+  "name": "mavbot",
+  "version": "1.0.0",
+  "description": "my first discord bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "bot",
+    "discord"
+  ],
+  "author": "Maverick",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^11.4.2"
+  }
+}
