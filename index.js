@@ -1,5 +1,5 @@
 const Discord = require('discord.js')
-const config = require('./config.json')
+// const config = require('./config.json')
 const prefix = '/'
 const client = new Discord.Client()
 
@@ -57,5 +57,5 @@ getRandomIntInclusive()
 
 
 
-//client.login(process.env.BOT_TOKEN)
-client.login(config.token)
+client.login(process.env.BOT_TOKEN)
+// client.login(config.token)
