@@ -12,7 +12,7 @@ client.on('message', message => {
         message.content.toLowerCase().startsWith('hey') ||
         message.content.toLowerCase().startsWith('hello') ||
         message.content.toLowerCase().startsWith('hellou')) {
-        message.channel.send(`What is uuup ${message.author.username}? :smiley:`)
+        message.channel.send(`What is uuup ${message.author.username}? 🙂`)
         // message.channel.send('https://giphy.com/gifs/hi-well-hello-there-whale-yoJC2A59OCZHs1LXvW')
     } else if (message.content.includes(`${prefix}random`)) {
         let userMessage = message.content
@@ -30,7 +30,7 @@ client.on('message', message => {
         let userMessageHowGay = message.content.substr(10).trim().split(' ')
         let usernameHowgay = userMessageHowGay[0].charAt(0).toUpperCase() + userMessageHowGay[0].slice(1)
         // let maxNumberHowGay = +userMessageHowGay[2]
-        message.channel.send(`${usernameHowgay} is ${getRandomIntInclusive(1, 100)} gay :ok_hand:`) 
+        message.channel.send(`${usernameHowgay} is ${getRandomIntInclusive(1, 100)} gay 👌`) 
     }
 })
 
