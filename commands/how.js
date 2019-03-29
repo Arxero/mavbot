@@ -1,14 +1,17 @@
 module.exports = {
 	name: 'how',
-	description: 'tells how gay is the person',
+    description: 'tells how gay is the person',
+    args: true,
+    usage: '<adjective> is <name>',
 	execute(message, args) {
-        args = args.filter(x => x != 'gay').filter(x => x != 'is')
+        let adjective = args[0]
+        args = args.slice(1).filter(x => x != 'is')
 
         if (!args.length) {
             return message.reply('you didn\'t seem to give any name')
         }
         let usernameHowgay = args.join(' ')
-        message.channel.send(`${usernameHowgay[0].charAt(0).toUpperCase() + usernameHowgay.slice(1)} is ${getRandomIntInclusive(1, 100)}% gay 👌`)
+        message.channel.send(`${usernameHowgay[0].charAt(0).toUpperCase() + usernameHowgay.slice(1)} is ${getRandomIntInclusive(1, 100)}% ${adjective} 👌`)
     
         function getRandomIntInclusive(min, max) {
             min = Math.ceil(min)

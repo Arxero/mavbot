@@ -1,6 +1,8 @@
 module.exports = {
 	name: 'random',
-	description: 'Gives a random number in interval',
+    description: 'Gives a random number in interval',
+    args: true,
+    usage: '<first number>-<second number>',
 	execute(message, args) {
 		args = args[0].split('-')
         let first = parseInt(args[0])

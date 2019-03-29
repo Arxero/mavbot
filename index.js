@@ -17,10 +17,49 @@ client.once('ready', () => {
 
 client.on('message', message => {
     if (!message.content.startsWith(prefix)) return
+
     let args = message.content.slice(prefix.length).split(/ +/)
     let commandName = args.shift().toLowerCase()
-    if (!client.commands.has(commandName)) return
-    let command = client.commands.get(commandName)
+    let command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
+    
+    if (!command) return
+
+    if (command.guildOnly && message.channel.type !== 'text') {
+        return message.reply('I can\'t execute that command inside DMs!')
+    }
+
+    if (command.args && !args.length) {
+        let reply = `${message.author}, you didn't provide any arguments!`
+
+        if (command.usage) {
+            reply += `\nThe proper usage would be: \`${prefix}${command.name} ${command.usage}\``
+        }
+        return message.channel.send(reply)
+    }
+
+    //cooldown implementation
+    let cooldowns = new Discord.Collection()
+
+    if (!cooldowns.has(command.name)) {
+        cooldowns.set(command.name, new Discord.Collection())
+    }
+    
+    let now = Date.now()
+    let timestamps = cooldowns.get(command.name)
+    let cooldownAmount = (command.cooldown || 3) * 1000
+    
+    if (timestamps.has(message.author.id)) {
+        let expirationTime = timestamps.get(message.author.id) + cooldownAmount
+        
+        if (now < expirationTime) {
+            let timeleft = (expirationTime - now) / 1000
+            return message.reply(`please wait ${timeleft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`)
+        }
+    }
+    
+    timestamps.set(message.author.id, now)
+    setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
+    //cooldown implementation
 
     try {
         command.execute(message, args)
