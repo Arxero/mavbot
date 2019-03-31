@@ -10,9 +10,15 @@ module.exports = {
         if (!args.length) {
             return message.reply('you didn\'t seem to give any name')
         }
+
         let usernameHowgay = args.join(' ')
-        message.channel.send(`${usernameHowgay[0].charAt(0).toUpperCase() + usernameHowgay.slice(1)} is ${getRandomIntInclusive(1, 100)}% ${adjective} 👌`)
-    
+        let howCommandEmbed = {
+            color: 0x0B8FD7,
+            description: `${usernameHowgay[0].charAt(0).toUpperCase() + usernameHowgay.slice(1)} is ${getRandomIntInclusive(1, 100)}% ${adjective} 👌`
+        }
+        
+        message.channel.send({ embed: howCommandEmbed });
+
         function getRandomIntInclusive(min, max) {
             min = Math.ceil(min)
             max = Math.floor(max)

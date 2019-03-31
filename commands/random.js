@@ -16,7 +16,12 @@ module.exports = {
             return message.reply('the first number must be smaller than the second')
         }
 
-        message.channel.send(getRandomIntInclusive(first, second))
+        let randomdEmbed = {
+            color: 0x0B8FD7,
+            title: getRandomIntInclusive(first, second)
+        }
+        
+        message.channel.send({ embed: randomdEmbed });
     
         function getRandomIntInclusive(min, max) {
             min = Math.ceil(min)

@@ -5,6 +5,7 @@ const prefix = '/'
 const client = new Discord.Client()
 client.commands = new Discord.Collection()
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
+const cooldowns = new Discord.Collection()
 
 for (let file of commandFiles) {
     let command = require(`./commands/${file}`)
@@ -21,7 +22,7 @@ client.on('message', message => {
     let args = message.content.slice(prefix.length).split(/ +/)
     let commandName = args.shift().toLowerCase()
     let command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
-    
+
     if (!command) return
 
     if (command.guildOnly && message.channel.type !== 'text') {
@@ -38,25 +39,24 @@ client.on('message', message => {
     }
 
     //cooldown implementation
-    let cooldowns = new Discord.Collection()
 
     if (!cooldowns.has(command.name)) {
         cooldowns.set(command.name, new Discord.Collection())
     }
-    
+
     let now = Date.now()
     let timestamps = cooldowns.get(command.name)
     let cooldownAmount = (command.cooldown || 3) * 1000
-    
+
     if (timestamps.has(message.author.id)) {
         let expirationTime = timestamps.get(message.author.id) + cooldownAmount
-        
+
         if (now < expirationTime) {
             let timeleft = (expirationTime - now) / 1000
             return message.reply(`please wait ${timeleft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`)
         }
     }
-    
+
     timestamps.set(message.author.id, now)
     setTimeout(() => timestamps.delete(message.author.id), cooldownAmount)
     //cooldown implementation
