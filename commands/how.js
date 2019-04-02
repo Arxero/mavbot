@@ -17,7 +17,7 @@ module.exports = {
             description: `${usernameHowgay[0].charAt(0).toUpperCase() + usernameHowgay.slice(1)} is ${getRandomIntInclusive(1, 100)}% ${adjective} 👌`
         }
         
-        message.channel.send({ embed: howCommandEmbed });
+        message.channel.send({ embed: howCommandEmbed })
 
         function getRandomIntInclusive(min, max) {
             min = Math.ceil(min)

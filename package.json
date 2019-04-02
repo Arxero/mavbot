@@ -13,6 +13,7 @@
   "author": "Maverick",
   "license": "MIT",
   "dependencies": {
+    "canvas": "^2.4.1",
     "discord.js": "^11.4.2",
     "dotenv": "^7.0.0"
   }

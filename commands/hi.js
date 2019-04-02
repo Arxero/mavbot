@@ -14,6 +14,7 @@ module.exports = {
             },
         }
 
-        return message.channel.send({ embed: howCommandEmbed, files: [file] });
+        message.react('👋')
+        return message.channel.send({ embed: howCommandEmbed, files: [file] })
     },
 };

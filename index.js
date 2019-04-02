@@ -1,5 +1,7 @@
 const fs = require('fs')
 const Discord = require('discord.js')
+const Canvas = require('canvas')
+const snekfetch = require('snekfetch')
 require('dotenv').config()
 const prefix = '/'
 const client = new Discord.Client()
@@ -16,7 +18,71 @@ client.once('ready', () => {
     console.log('Ready!')
 })
 
-client.on('message', message => {
+// Pass the entire Canvas object because you'll need to access its width, as well its context
+const applyText = (canvas, text) => {
+	const ctx = canvas.getContext('2d');
+
+	// Declare a base size of the font
+	let fontSize = 70;
+
+	do {
+		// Assign the font to the context and decrement it so it can be measured again
+		ctx.font = `${fontSize -= 10}px sans-serif`;
+		// Compare pixel width of the text to the canvas minus the approximate avatar size
+	} while (ctx.measureText(text).width > canvas.width - 300);
+
+	// Return the result to use in the actual canvas
+	return ctx.font;
+};
+
+
+//image manipulation part
+client.on('guildMemberAdd', async member => {
+    let channel = member.guild.channels.find(ch => ch.name == 'memes')
+    if (!channel) return
+
+    let canvas = Canvas.createCanvas(700, 250)
+    let ctx = canvas.getContext('2d')
+    let background = await Canvas.loadImage('./assets/images/wallpaper.jpg')
+
+    //stretch the image background image
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height)
+    
+    //stroke
+    ctx.strokeStyle = '#74037b'
+    ctx.strokeRect(0, 0, canvas.width, canvas.height)
+
+    // Slightly smaller text placed above the member's display name
+	ctx.font = '28px sans-serif'
+	ctx.fillStyle = '#ffffff'
+	ctx.fillText('Welcome to the server,', canvas.width / 2.5, canvas.height / 2.6)
+
+
+    ctx.font = applyText(canvas, `${member.displayName}!`)
+    ctx.fillStyle = '#ffffff'
+    ctx.fillText(member.displayName, canvas.width / 2.5, canvas.height / 1.5)
+
+    ctx.beginPath()
+    ctx.arc(125, 125, 100, 0, Math.PI * 2, true)
+    ctx.closePath()
+    ctx.clip()
+
+    let {body: buffer} = await snekfetch.get(member.user.displayAvatarURL)
+    let avatar = await Canvas.loadImage(buffer)
+    ctx.drawImage(avatar, 25, 25, 200, 200)
+
+
+    let attachment = new Discord.Attachment(canvas.toBuffer(), 'welcome-image.png')
+    channel.send(attachment)
+
+})
+//image manipulation part
+
+client.on('message', async message => {
+    if (message.content === '/join') {
+		client.emit('guildMemberAdd', message.member || await message.guild.fetchMember(message.author));
+	}
+
     if (!message.content.startsWith(prefix)) return
 
     let args = message.content.slice(prefix.length).split(/ +/)
@@ -39,7 +105,6 @@ client.on('message', message => {
     }
 
     //cooldown implementation
-
     if (!cooldowns.has(command.name)) {
         cooldowns.set(command.name, new Discord.Collection())
     }
