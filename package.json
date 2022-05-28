@@ -1,0 +1,43 @@
+{
+  "name": "mavbot",
+  "version": "1.0.0",
+  "description": "Simple discord bot that will serve the need to show info about the cs server with the command `++acfun`",
+  "main": "./prod/index.js",
+  "scripts": {
+    "start": "node -r dotenv/config ./prod/index.js",
+    "build": "tsc -w",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts",
+    "lint-and-fix": "eslint . --ext .ts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Arxero/mavbot.git"
+  },
+  "keywords": [
+    "mavbot"
+  ],
+  "author": "Maverick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Arxero/mavbot/issues"
+  },
+  "homepage": "https://github.com/Arxero/mavbot#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.13.0",
+    "@discordjs/rest": "^0.4.1",
+    "discord-api-types": "^0.33.0",
+    "discord.js": "^13.7.0",
+    "dotenv": "^16.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.36",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.6.2",
+    "typescript": "^4.7.2"
+  }
+}
