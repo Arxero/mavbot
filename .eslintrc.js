@@ -26,5 +26,6 @@ module.exports = {
 			{ blankLine: 'always', prev: '*', next: 'function' },
 			{ blankLine: 'always', prev: '*', next: 'return' },
 		],
+    '@typescript-eslint/no-non-null-assertion': 'off',
 	},
 };
