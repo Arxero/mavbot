@@ -25,3 +25,10 @@ For your changes to take effect, use
 [Docs](https://discord.js.org/#/docs/discord.js/stable/general/welcome)
 
 [Guide](https://discordjs.guide/creating-your-bot/creating-commands.html#command-deployment-script)
+
+# Steam master server quering
+[Master Server Query Protocol](https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol#Sample_query)
+
+[Server queries](https://developer.valvesoftware.com/wiki/Server_queries)
+
+[Game dig](https://www.npmjs.com/package/gamedig)
