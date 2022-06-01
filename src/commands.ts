@@ -22,24 +22,24 @@ const commandsReg: Command[] = [
 		execute: async (interaction: CommandInteraction): Promise<void> => {
 			try {
 				const serverInfo = await query({
-					type: 'cs16',
-					host: 'ac.gamewaver.com',
-					port: 27017,
-					maxAttempts: 3,
+					type: config.gameType,
+					host: config.host,
+					port: config.port,
+					maxAttempts: config.maxAttempts,
 				});
 
 				const embed = new MessageEmbed()
-					.setColor('#0EF04E')
+					.setColor(config.embedColor)
 					.setTitle(serverInfo.name)
 					.setDescription(
-						`Current Map: \`${serverInfo.map}\` \n IP Address: \`130.204.202.133:27017\` \n Join: steam://connect/${serverInfo.connect}`
+						`Current Map: \`${serverInfo.map}\` \n IP Address: \`${config.embedIP}\` \n Join: steam://connect/${serverInfo.connect}`
 					);
 
 				tryAddPlayers(embed, serverInfo.players);
-				embed.setFooter({ text: `Current Players: ${serverInfo.players.length} / ${serverInfo.maxplayers}`, iconURL: 'https://i.imgur.com/7Bh5QSs.png' });
+				embed.setFooter({ text: `Current Players: ${serverInfo.players.length} / ${serverInfo.maxplayers}`, iconURL: config.emdbedIconUrl });
 
 				interaction.reply({
-					files: ['https://www.game-state.com/130.204.202.133:27017/n-560x95_0EF04E_FFFFFF_000000_000000.png'],
+					files: [config.embedFile],
 					embeds: [embed],
 				});
 			} catch (error) {
@@ -64,7 +64,7 @@ function tryAddPlayers(message: MessageEmbed, players: Player[]): void {
 	}
 
 	message.addField('Player Name', `${players.map(p => p.name || 'unknown').join('\n')}`, true);
-	message.addField('Score', `${players.map(p => p.score || 0).join('\n')}`, true);
+	message.addField('Score', `${players.map(p => (p.raw as any).score || 0).join('\n')}`, true);
 	message.addField('Time', `${players.map(p => {
 		let time = (p.raw as any).time || 0;
 		if (time) {

@@ -1,8 +1,6 @@
-import { Client } from 'discord.js';
 import { config } from './config';
+import { Client } from 'discord.js';
 import { commands } from './commands';
-
-// initialization
 const client = new Client({ intents: config.intents });
 
 client.on('ready', () => {
