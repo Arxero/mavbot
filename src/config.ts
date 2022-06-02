@@ -1,36 +1,45 @@
+import axios from 'axios';
 import { ColorResolvable, Intents } from 'discord.js';
 import { Type } from 'gamedig';
-
-interface IConfig {
-	intents: number[];
-	token?: string;
-	clientId?: string;
-	guildId?: string;
-
-    gameType: Type,
-    host: string,
+export interface BaseConfig {
+    token: string;
+	clientId: string;
+	guildId: string;
+    intents: number[];
+}
+export interface AcConfig extends BaseConfig {
+    gameType?: Type,
+    host?: string,
     port?: number,
     maxAttempts?: number,
 
-    embedColor: ColorResolvable,
+    embedColor?: ColorResolvable,
     embedIP?: string,
     emdbedIconUrl?: string;
-    embedFile: string;
+    embedFile?: string;
 }
+export class Config {
+    config: AcConfig;
 
-export const config: IConfig = {
-	intents: [Intents.FLAGS.GUILDS],
-	token: process.env.BOT_TOKEN,
-	clientId: process.env.APPLICATION_ID,
-	guildId: process.env.SERVER_ID,
+    constructor() {
+        if (!process.env.BOT_TOKEN || !process.env.APPLICATION_ID || !process.env.SERVER_ID) {
+            throw new Error('Essential secrets were not supplied. Please fill them to continue!');
+        }
 
-    gameType: 'cs16',
-    host: 'ac.gamewaver.com',
-    port: 27017,
-    maxAttempts: 3,
+        this.config = {
+            token: process.env.BOT_TOKEN,
+            clientId: process.env.APPLICATION_ID,
+            guildId: process.env.SERVER_ID,
+            intents: [Intents.FLAGS.GUILDS],
+        } as AcConfig;
+    }
 
-    embedColor: '#0EF04E',
-    embedIP: '130.204.202.133:27017',
-    emdbedIconUrl: 'https://i.imgur.com/7Bh5QSs.png',
-    embedFile: 'https://www.game-state.com/130.204.202.133:27017/n-560x95_0EF04E_FFFFFF_000000_000000.png',
-};
+	async loadConfigs(): Promise<void> {
+        if (!process.env.AC_CONFIG) {
+            return;
+        }
+
+        const result = await (await axios.get<AcConfig>(process.env.AC_CONFIG)).data;
+        this.config = { ...this.config, ...result };
+	}
+}
