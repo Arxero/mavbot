@@ -98,6 +98,11 @@ Reattach to the screen session by typing
 
 Use the key sequence `Ctrl-a` + `Ctrl-d` to detach from the screen session.
 
+## Update with new version
+
+    git fetch --all
+    git reset --hard origin/master
+
 
 
 
