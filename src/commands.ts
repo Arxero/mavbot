@@ -18,16 +18,17 @@ export const commandsReg: Command[] = [
 	{
 		command: new SlashCommandBuilder().setName('acfun').setDescription('Returns cs info'),
 		execute: async (interaction: CommandInteraction, config?: AcConfig): Promise<void> => {
-			if (!config || !config.host) {
-				return;
+			if (!config) {
+				config = {} as AcConfig;
+				console.log('Config for acfun command was not provided, therefore using defaults.');
 			}
 
 			try {
 				const serverInfo = await query({
 					type: config.gameType || 'cs16',
-					host: config.host,
-					port: config.port || 27015,
-					maxAttempts: config.maxAttempts,
+					host: config.host || 'ac.gamewaver.com',
+					port: config.port || 27017,
+					maxAttempts: config.maxAttempts || 1,
 				});
 
 				const embed = new MessageEmbed()
