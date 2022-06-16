@@ -103,9 +103,29 @@ Use the key sequence `Ctrl-a` + `Ctrl-d` to detach from the screen session.
     git fetch --all
     git reset --hard origin/master
 
+## Startup script
 
+1. Create start.sh file in the home directory for example
 
+        cd /home/steam
+        sudo nano mavbot.sh
 
+2. Give start.sh file permissions to be executable
 
+         sudo chmod +x mavbot.sh
 
+3. Update `mavbot.sh` with the following:
 
+```sh
+screen -X -S mavbot kill
+cd /home/steam/mavbot
+screen -A -m -d -S mavbot npm run start
+echo "==========Mavbot has been booted=========="
+```
+4. Run `mavbot.sh` script on system startup
+
+[Run a Script on Startup in Linux](https://www.baeldung.com/linux/run-script-on-startup)
+First login as the user you want to execute the script from, then open crontab and add the required line at the bottom of the file
+
+    crontab -e
+    @reboot sh /home/steam/mavbot.sh
