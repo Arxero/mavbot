@@ -125,7 +125,30 @@ echo "==========Mavbot has been booted=========="
 4. Run `mavbot.sh` script on system startup
 
 [Run a Script on Startup in Linux](https://www.baeldung.com/linux/run-script-on-startup)
+### Using cron
+
 First login as the user you want to execute the script from, then open crontab and add the required line at the bottom of the file
 
     crontab -e
     @reboot sh /home/steam/mavbot.sh
+
+### Using service
+
+    cd /etc/systemd/system
+    sudo nano mavbot.service
+
+```ini
+[Unit]
+Description=Reboots Mavbot.  
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/steam/mavbot.sh           
+
+[Install]
+WantedBy=multi-user.target
+```
+
+    chmod 644 /etc/systemd/system/mavbot.service
+    sudo systemctl enable mavbot.service
+
