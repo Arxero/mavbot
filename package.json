@@ -4,6 +4,7 @@
   "description": "Simple discord bot that will serve the need to show info about the cs server with the command `++acfun`",
   "main": "./dist/index.js",
   "scripts": {
+    "prebuild": "rimraf dist",
     "start": "node -r dotenv/config ./dist/index.js",
     "build": "tsc -w",
     "test": "echo \"Error: no test specified\" && exit 1",

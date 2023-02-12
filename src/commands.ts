@@ -24,6 +24,9 @@ export const commandsReg: Command[] = [
 			}
 
 			try {
+				// doing this approach because if request is slower than 3s it will crash the bot
+				// https://stackoverflow.com/a/68774492/6743948
+				await interaction.deferReply();
 				const serverInfo = await query({
 					type: config.gameType || 'cs16',
 					host: config.host || 'ac.gamewaver.com',
@@ -40,13 +43,13 @@ export const commandsReg: Command[] = [
 
 				tryAddPlayers(embed, serverInfo.players);
 				embed.setFooter({ text: `Current Players: ${serverInfo.players.length} / ${serverInfo.maxplayers}`, iconURL: config.emdbedIconUrl });
-
-				interaction.reply({
-					files: [config.embedFile || ''],
+				
+				await interaction.editReply({
 					embeds: [embed],
+					files: [config.embedFile || '']
 				});
 			} catch (error) {
-				console.log(error);
+				console.log(`Error while fetching server data: ${error}`);
 			}
 		},
 	},
