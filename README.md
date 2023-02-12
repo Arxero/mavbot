@@ -85,12 +85,12 @@ List screen sessions
 
 Create new `screen` session named mavbot
 
-    cd /mavbot
+    cd mavbot
     screen -A -m -d -S mavbot npm run start
 
 or
 
-    cd /mavbot && screen -A -m -d -S mavbot npm run start
+    cd mavbot && screen -A -m -d -S mavbot npm run start
 
 Kill `mavbot` session
 
