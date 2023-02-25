@@ -168,3 +168,13 @@ WantedBy=multi-user.target
 -   to update them
 
           ncu -u
+
+### Kill Mavbot process
+- htop
+- F4
+- search for it and copy `PID`
+- exit and use
+
+        kill -9 PID
+
+- where `PID` is the id you copied from htop
