@@ -19,7 +19,6 @@ export class ImageDownloader {
 			return;
 		}
 		const imagePath = path.resolve(__dirname, this.assets, this.getFileName(url));
-		console.log(imagePath);
 
 		try {
 			const image = await axios.get<Stream>(url, { responseType: 'stream' });
