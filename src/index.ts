@@ -1,11 +1,16 @@
 import { Config } from './config';
+import { ImageDownloader } from './img-downloader';
 import { Client, Events } from 'discord.js';
 import { commands, commandsReg } from './commands';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v10';
+import { DependencyResolver, DependencyType } from './dependency-resolver';
 
 async function bootstrap(): Promise<void> {
+	const resolver = new DependencyResolver();
 	const config = new Config();
+	resolver.register(DependencyType.Config, config);
+	resolver.register(DependencyType.ImgDownloader, new ImageDownloader());
 	await config.loadConfigs();
 
 	const client = new Client({ intents: config.config.intents });
@@ -38,7 +43,7 @@ async function bootstrap(): Promise<void> {
 		}
 
 		try {
-			await command.execute(interaction, config.config);
+			await command.execute(interaction, resolver);
 		} catch (error) {
 			console.error(error);
 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });

@@ -2,11 +2,13 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder, Colors, APIEmbedField } from 'discord.js';
 import { Player, query } from 'gamedig';
 import moment from 'moment';
-import { AcConfig, BaseConfig } from './config';
+import { AcConfig, Config } from './config';
+import { DependencyResolver, DependencyType } from './dependency-resolver';
+import { ImageDownloader } from './img-downloader';
 
 interface Command {
 	command: SlashCommandBuilder;
-	execute: (interaction: CommandInteraction, config?: BaseConfig) => Promise<InteractionResponse | Message | undefined>;
+	execute: (interaction: CommandInteraction, resolver?: DependencyResolver) => Promise<InteractionResponse | Message | undefined>;
 }
 
 export const commands = new Collection<string, Command>();
@@ -17,21 +19,34 @@ export const commandsReg: Command[] = [
 	},
 	{
 		command: new SlashCommandBuilder().setName('acfun').setDescription('Returns cs info'),
-		execute: async (interaction: CommandInteraction, config?: AcConfig): Promise<InteractionResponse | Message | undefined> => {
-			if (!config) {
-				config = {} as AcConfig;
+		execute: async (interaction: CommandInteraction, resolver?: DependencyResolver): Promise<InteractionResponse | Message | undefined> => {
+			const configInstance = resolver?.resolve<Config>(DependencyType.Config);
+			const imgDownloader = resolver?.resolve<ImageDownloader>(DependencyType.ImgDownloader);
+
+			let config: AcConfig = {
+				gameType: 'cs16',
+				host: 'ac.gamewaver.com',
+				port: 27017,
+				maxAttempts: 1,
+				embedColor: Colors.White,
+			} as AcConfig;
+			
+			if (!configInstance?.config) {
 				console.log('Config for acfun command was not provided, therefore using defaults.');
+			} else {
+				config = configInstance.config;
 			}
 
 			try {
 				// doing this approach because if request is slower than 3s it will crash the bot
 				// https://stackoverflow.com/a/68774492/6743948
 				await interaction.deferReply();
+				const imgLocation = await imgDownloader?.getImageByUrl(config.embedFile);
 				const serverInfo = await query({
-					type: config.gameType || 'cs16',
-					host: config.host || 'ac.gamewaver.com',
-					port: config.port || 27017,
-					maxAttempts: config.maxAttempts || 1,
+					type: config.gameType!,
+					host: config.host!,
+					port: config.port,
+					maxAttempts: config.maxAttempts,
 				});
 
 				const embed = new EmbedBuilder()
@@ -46,7 +61,7 @@ export const commandsReg: Command[] = [
 				
 				return await interaction.editReply({
 					embeds: [embed],
-					files: [config.embedFile || '']
+					files: imgLocation ? [imgLocation] : undefined
 				});
 			} catch (error) {
 				console.log(`Error while fetching server data: ${error}`);
