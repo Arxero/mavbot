@@ -156,3 +156,15 @@ WantedBy=multi-user.target
     chmod 644 /etc/systemd/system/mavbot.service
     sudo systemctl enable mavbot.service
 
+
+### Update npm packages
+
+1. Use [npm-check-updates](https://www.npmjs.com/package/npm-check-updates)
+
+-   to see updatable packages
+
+          ncu
+
+-   to update them
+
+          ncu -u
