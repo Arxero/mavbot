@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ColorResolvable, Intents } from 'discord.js';
+import { ColorResolvable, IntentsBitField } from 'discord.js';
 import { Type } from 'gamedig';
 export interface BaseConfig {
 	token: string;
@@ -31,7 +31,7 @@ export class Config {
 			token: process.env.BOT_TOKEN,
 			clientId: process.env.APPLICATION_ID,
 			guildId: process.env.SERVER_ID,
-			intents: [Intents.FLAGS.GUILDS],
+			intents: [IntentsBitField.Flags.Guilds],
 		} as AcConfig;
 	}
 

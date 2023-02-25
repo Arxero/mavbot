@@ -1,12 +1,12 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { Collection, CommandInteraction, MessageEmbed } from 'discord.js';
+import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder, Colors, APIEmbedField } from 'discord.js';
 import { Player, query } from 'gamedig';
 import moment from 'moment';
 import { AcConfig, BaseConfig } from './config';
 
 interface Command {
 	command: SlashCommandBuilder;
-	execute: (interaction: CommandInteraction, config?: BaseConfig) => Promise<void>;
+	execute: (interaction: CommandInteraction, config?: BaseConfig) => Promise<InteractionResponse | Message | undefined>;
 }
 
 export const commands = new Collection<string, Command>();
@@ -17,7 +17,7 @@ export const commandsReg: Command[] = [
 	},
 	{
 		command: new SlashCommandBuilder().setName('acfun').setDescription('Returns cs info'),
-		execute: async (interaction: CommandInteraction, config?: AcConfig): Promise<void> => {
+		execute: async (interaction: CommandInteraction, config?: AcConfig): Promise<InteractionResponse | Message | undefined> => {
 			if (!config) {
 				config = {} as AcConfig;
 				console.log('Config for acfun command was not provided, therefore using defaults.');
@@ -34,8 +34,8 @@ export const commandsReg: Command[] = [
 					maxAttempts: config.maxAttempts || 1,
 				});
 
-				const embed = new MessageEmbed()
-					.setColor(config.embedColor || 'WHITE')
+				const embed = new EmbedBuilder()
+					.setColor(config.embedColor || Colors.White)
 					.setTitle(serverInfo.name)
 					.setDescription(
 						`Current Map: \`${serverInfo.map}\` \n IP Address: \`${config.embedIP || serverInfo.connect}\` \n Join: steam://connect/${serverInfo.connect}`
@@ -44,7 +44,7 @@ export const commandsReg: Command[] = [
 				tryAddPlayers(embed, serverInfo.players);
 				embed.setFooter({ text: `Current Players: ${serverInfo.players.length} / ${serverInfo.maxplayers}`, iconURL: config.emdbedIconUrl });
 				
-				await interaction.editReply({
+				return await interaction.editReply({
 					embeds: [embed],
 					files: [config.embedFile || '']
 				});
@@ -59,19 +59,23 @@ export const commandsReg: Command[] = [
 	return command;
 });
 
-function tryAddPlayers(message: MessageEmbed, players: Player[]): void {
+function tryAddPlayers(message: EmbedBuilder, players: Player[]): void {
 	if (!players.length) {
 		return;
 	}
 
-	message.addField('Player Name', `${players.map(p => p.name || 'unknown').join('\n')}`, true);
-	message.addField('Score', `${players.map(p => (p.raw as any).score || 0).join('\n')}`, true);
-	message.addField('Time', `${players.map(p => {
-		let time = (p.raw as any).time || 0;
-		if (time) {
-			time = moment.utc(time * 1000).format('H:mm:ss');
-		}
+	const fields: APIEmbedField[] = [
+		{ name: 'Player Name', value: `${players.map(p => p.name || 'unknown').join('\n')}`, inline: true },
+		{ name: 'Score', value: `${players.map(p => (p.raw as any).score || 0).join('\n')}`, inline: true },
+		{ name: 'Time', value: `${players.map(p => {
+			let time = (p.raw as any).time || 0;
+			if (time) {
+				time = moment.utc(time * 1000).format('H:mm:ss');
+			}
+	
+			return time;
+		}).join('\n')}`, inline: true },
+	];
 
-		return time;
-	}).join('\n')}`, true);
+	message.addFields(fields);
 }
