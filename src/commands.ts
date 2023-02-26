@@ -3,8 +3,9 @@ import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuil
 import { Player, query } from 'gamedig';
 import moment from 'moment';
 import { AcConfig, Config } from './config';
-import { DependencyResolver, DependencyType } from './dependency-resolver';
+import { DependencyResolver, DependencyType } from './dependency.resolver';
 import { ImageDownloader } from './img-downloader';
+import { LoggerService } from './logger.service';
 
 interface Command {
 	command: SlashCommandBuilder;
@@ -22,6 +23,7 @@ export const commandsReg: Command[] = [
 		execute: async (interaction: CommandInteraction, resolver?: DependencyResolver): Promise<InteractionResponse | Message | undefined> => {
 			const configInstance = resolver?.resolve<Config>(DependencyType.Config);
 			const imgDownloader = resolver?.resolve<ImageDownloader>(DependencyType.ImgDownloader);
+			const logger = resolver?.resolve<LoggerService>(DependencyType.Logger);
 
 			let config: AcConfig = {
 				gameType: 'cs16',
@@ -32,7 +34,7 @@ export const commandsReg: Command[] = [
 			} as AcConfig;
 			
 			if (!configInstance?.config) {
-				console.log('Config for acfun command was not provided, therefore using defaults.');
+				logger?.log('Config for acfun command was not provided, therefore using defaults.');
 			} else {
 				config = configInstance.config;
 			}
@@ -64,7 +66,7 @@ export const commandsReg: Command[] = [
 					files: imgLocation ? [imgLocation] : undefined
 				});
 			} catch (error) {
-				console.log(`Error while fetching server data: ${error}`);
+				logger?.log(`Error while fetching server data: ${error}`);
 			}
 		},
 	},

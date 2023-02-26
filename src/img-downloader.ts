@@ -2,22 +2,22 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { Stream } from 'stream';
+import { FileHelper } from './file-helper';
+import { LoggerService } from './logger.service';
 
-export class ImageDownloader {
+export class ImageDownloader extends FileHelper {
 	private assets = 'assets';
 
-	constructor() {
-		const assetsDirectory = path.resolve(__dirname, this.assets);
-
-		if (!fs.existsSync(assetsDirectory)) {
-			fs.mkdirSync(assetsDirectory);
-		}
+	constructor(private logger: LoggerService) {
+        super();
 	}
 
 	async getImageByUrl(url?: string): Promise<string | undefined> {
 		if (!url) {
 			return;
 		}
+
+        this.ensureDirectory(this.assets);
 		const imagePath = path.resolve(__dirname, this.assets, this.getFileName(url));
 
 		try {
@@ -30,7 +30,7 @@ export class ImageDownloader {
 				writer.on('finish', () => resolve(imagePath));
 			});
 		} catch (error) {
-			console.log(`Error while fetching image: ${error}`);
+			this.logger.error(`Error while fetching image: ${error}`);
 		}
 	}
 

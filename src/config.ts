@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ColorResolvable, IntentsBitField } from 'discord.js';
 import { Type } from 'gamedig';
+import { LoggerService } from './logger.service';
 export interface BaseConfig {
 	token: string;
 	clientId: string;
@@ -22,9 +23,10 @@ export interface AcConfig extends BaseConfig {
 export class Config {
 	config: AcConfig;
 
-	constructor() {
+	constructor(private logger: LoggerService) {
 		if (!process.env.BOT_TOKEN || !process.env.APPLICATION_ID || !process.env.SERVER_ID) {
-			throw new Error('Essential secrets were not supplied. Please fill them to continue!');
+			this.logger.error('Essential secrets were not supplied. Please fill them to continue! Exiting...');
+			throw new Error();
 		}
 
 		this.config = {
@@ -37,7 +39,7 @@ export class Config {
 
 	async loadConfigs(): Promise<void> {
 		if (!process.env.AC_CONFIG) {
-			console.log('No AC_Config link was provided.');
+			this.logger.log('No AC_Config link was provided.');
 
 			return;
 		}
@@ -45,9 +47,9 @@ export class Config {
 		try {
 			const result = await (await axios.get<AcConfig>(process.env.AC_CONFIG)).data;
 			this.config = { ...this.config, ...result };
-            console.log('Configs loaded successfully.');
+            this.logger.log('Configs loaded successfully.');
 		} catch (error) {
-			console.log(`Loading settings has failed with Error: ${error}`);
+			this.logger.error(`Loading settings has failed with Error: ${error}`);
 		}
 
 		setTimeout(async () => {

@@ -20,8 +20,8 @@ export class DependencyResolver {
 	}
 }
 
-
 export enum DependencyType {
-    Config = 'Config',
-    ImgDownloader = 'ImgDownloader',
+	Config = 'Config',
+	ImgDownloader = 'ImgDownloader',
+	Logger = 'Logger',
 }
