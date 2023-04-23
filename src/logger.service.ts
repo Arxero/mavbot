@@ -2,7 +2,7 @@ import fs, { WriteStream } from 'fs';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import path from 'path';
-import { FileHelper } from './file-helper';
+import { FileHelper } from './helpers';
 
 enum LogLevel {
 	ERROR = 'error',

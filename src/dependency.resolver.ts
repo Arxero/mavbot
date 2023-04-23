@@ -24,4 +24,5 @@ export enum DependencyType {
 	Config = 'Config',
 	ImgDownloader = 'ImgDownloader',
 	Logger = 'Logger',
+	PlayersCheck = 'PlayersCheck'
 }

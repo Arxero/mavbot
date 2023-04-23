@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder, Colors, APIEmbedField } from 'discord.js';
-import { Player, query } from 'gamedig';
-import moment from 'moment';
-import { AcConfig, Config } from './config';
+import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder } from 'discord.js';
+import { query } from 'gamedig';
+import { ConfigService } from './config.service';
 import { DependencyResolver, DependencyType } from './dependency.resolver';
+import { tryAddPlayers } from './helpers';
 import { ImageDownloader } from './img-downloader';
 import { LoggerService } from './logger.service';
 
@@ -16,28 +16,14 @@ export const commands = new Collection<string, Command>();
 export const commandsReg: Command[] = [
 	{
 		command: new SlashCommandBuilder().setName('ping').setDescription('Returns pong'),
-		execute: (interaction: CommandInteraction) => interaction.reply('Pong'),
+		execute: (interaction: CommandInteraction) => interaction.reply('pong'),
 	},
 	{
 		command: new SlashCommandBuilder().setName('acfun').setDescription('Returns cs info'),
 		execute: async (interaction: CommandInteraction, resolver?: DependencyResolver): Promise<InteractionResponse | Message | undefined> => {
-			const configInstance = resolver?.resolve<Config>(DependencyType.Config);
+			const config = resolver!.resolve<ConfigService>(DependencyType.Config).config.acfun;
 			const imgDownloader = resolver?.resolve<ImageDownloader>(DependencyType.ImgDownloader);
 			const logger = resolver?.resolve<LoggerService>(DependencyType.Logger);
-
-			let config: AcConfig = {
-				gameType: 'cs16',
-				host: 'ac.gamewaver.com',
-				port: 27017,
-				maxAttempts: 1,
-				embedColor: Colors.White,
-			} as AcConfig;
-			
-			if (!configInstance?.config) {
-				logger?.log('Config for acfun command was not provided, therefore using defaults.');
-			} else {
-				config = configInstance.config;
-			}
 
 			try {
 				// doing this approach because if request is slower than 3s it will crash the bot
@@ -45,25 +31,27 @@ export const commandsReg: Command[] = [
 				await interaction.deferReply();
 				const imgLocation = await imgDownloader?.getImageByUrl(config.embedFile);
 				const serverInfo = await query({
-					type: config.gameType!,
-					host: config.host!,
+					type: config.gameType,
+					host: config.host,
 					port: config.port,
 					maxAttempts: config.maxAttempts,
 				});
 
 				const embed = new EmbedBuilder()
-					.setColor(config.embedColor || Colors.White)
+					.setColor(config.embedColor)
 					.setTitle(serverInfo.name)
 					.setDescription(
-						`Current Map: \`${serverInfo.map}\` \n IP Address: \`${config.embedIP || serverInfo.connect}\` \n Join: steam://connect/${serverInfo.connect}`
+						`Current Map: \`${serverInfo.map}\` \n IP Address: \`${config.embedIP || serverInfo.connect}\` \n Join: steam://connect/${
+							serverInfo.connect
+						}`
 					);
 
 				tryAddPlayers(embed, serverInfo.players);
 				embed.setFooter({ text: `Current Players: ${serverInfo.players.length} / ${serverInfo.maxplayers}`, iconURL: config.emdbedIconUrl });
-				
+
 				return await interaction.editReply({
 					embeds: [embed],
-					files: imgLocation ? [imgLocation] : undefined
+					files: imgLocation ? [imgLocation] : undefined,
 				});
 			} catch (error) {
 				logger?.log(`Error while fetching server data: ${error}`);
@@ -75,24 +63,3 @@ export const commandsReg: Command[] = [
 
 	return command;
 });
-
-function tryAddPlayers(message: EmbedBuilder, players: Player[]): void {
-	if (!players.length) {
-		return;
-	}
-
-	const fields: APIEmbedField[] = [
-		{ name: 'Player Name', value: `${players.map(p => p.name || 'unknown').join('\n')}`, inline: true },
-		{ name: 'Score', value: `${players.map(p => (p.raw as any).score || 0).join('\n')}`, inline: true },
-		{ name: 'Time', value: `${players.map(p => {
-			let time = (p.raw as any).time || 0;
-			if (time) {
-				time = moment.utc(time * 1000).format('H:mm:ss');
-			}
-	
-			return time;
-		}).join('\n')}`, inline: true },
-	];
-
-	message.addFields(fields);
-}

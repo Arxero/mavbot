@@ -2,7 +2,7 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { Stream } from 'stream';
-import { FileHelper } from './file-helper';
+import { FileHelper } from './helpers';
 import { LoggerService } from './logger.service';
 
 export class ImageDownloader extends FileHelper {
