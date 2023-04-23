@@ -103,9 +103,12 @@ Reattach to the screen session by typing
 Use the key sequence `Ctrl-a` + `Ctrl-d` to detach from the screen session.
 
 ## Update with new version
-
+    cd mavbot
     git fetch --all
     git reset --hard origin/master
+    git pull
+    git build
+    screen -A -m -d -S mavbot npm run start
 
 ## Startup script
 
