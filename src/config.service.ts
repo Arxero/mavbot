@@ -80,7 +80,7 @@ export class ConfigService {
 
 	async loadConfigs(): Promise<void> {
 		if (!process.env.AC_CONFIG) {
-			this.logger.log('No AC_Config link was provided.');
+			this.logger.log('No AC_Config link was provided. Using defaults!');
 
 			return;
 		}
@@ -91,10 +91,9 @@ export class ConfigService {
 			this.logger.log('Configs loaded successfully.');
 		} catch (error) {
 			this.logger.error(`Loading settings has failed with Error: ${error}`);
-			this.logger.log('Using defaults!');
 		}
 
-		setTimeout(async () => {
+		setInterval(async () => {
 			await this.loadConfigs();
 		}, this.config.configRefreshTime * 1000);
 	}

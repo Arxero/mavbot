@@ -33,7 +33,7 @@ export class PlayersCheckService {
 			this.logger.error(`Error while fetching server data for ${PlayersCheckService.name}: ${error}`);
 		}
 
-		setTimeout(async () => {
+		setInterval(async () => {
 			await this.startPlayersCheck(client);
 		}, this.config.config.onlinePlayers.checkInterval * 1000);
 	}
