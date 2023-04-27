@@ -7,8 +7,8 @@ import moment from 'moment';
 import { Dictionary } from 'lodash';
 
 export abstract class FileHelper {
-	ensureDirectory(directory: string): void {
-		const directoryPath = path.resolve(__dirname, directory);
+	ensureDirectory(directory: string, withParent = false): void {
+		const directoryPath = path.resolve(__dirname, withParent ? '..' : '', directory);
 
 		if (!fs.existsSync(directoryPath)) {
 			fs.mkdirSync(directoryPath);

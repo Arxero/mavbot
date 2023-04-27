@@ -14,11 +14,11 @@ enum LogLevel {
 export class LoggerService extends FileHelper {
 	private logStream: WriteStream;
 	private logDirectory = 'logs';
-	private logFilePath = path.resolve(__dirname, this.logDirectory, this.getFileName());
+	private logFilePath = path.resolve(__dirname, '..' ,this.logDirectory, this.getFileName());
 
 	constructor() {
         super();
-        this.ensureDirectory(this.logDirectory);
+        this.ensureDirectory(this.logDirectory, true);
 		this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
 	}
 
