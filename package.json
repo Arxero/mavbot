@@ -2,10 +2,10 @@
   "name": "mavbot",
   "version": "1.0.0",
   "description": "Simple discord bot that will serve the need to show info about the cs server with the command `++acfun`",
-  "main": "./dist/index.js",
+  "main": "./dist/main.js",
   "scripts": {
     "prebuild": "rimraf dist",
-    "start": "npm run build && node -r dotenv/config ./dist/index.js",
+    "start": "npm run build && node -r dotenv/config ./dist/main.js",
     "start:dev": "nodemon",
     "build": "rimraf dist && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",

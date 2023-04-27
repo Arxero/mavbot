@@ -1,7 +1,7 @@
 {
 	"watch": ["src", ".env"],
 	"ext": "ts",
-	"exec": "ts-node -r dotenv/config ./src/index.ts",
+	"exec": "ts-node -r dotenv/config ./src/main.ts",
 	"ignore": [".git", "node_modules/**/node_modules"],
 	"execMap": {
 		"ts": "ts-node -r tsconfig-paths/register"
