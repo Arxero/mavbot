@@ -1,15 +1,15 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder } from 'discord.js';
 import { query } from 'gamedig';
+import { ReflectiveInjector } from 'injection-js';
 import { ConfigService } from './config.service';
-import { DependencyResolver, DependencyType } from './dependency.resolver';
 import { tryAddPlayers } from './helpers';
-import { ImageDownloader } from './img-downloader';
+import { ImgDownloaderService } from './img-downloader.service';
 import { LoggerService } from './logger.service';
 
 interface Command {
 	command: SlashCommandBuilder;
-	execute: (interaction: CommandInteraction, resolver?: DependencyResolver) => Promise<InteractionResponse | Message | undefined>;
+	execute: (interaction: CommandInteraction, injector?: ReflectiveInjector) => Promise<InteractionResponse | Message | undefined>;
 }
 
 export const commands = new Collection<string, Command>();
@@ -20,11 +20,11 @@ export const commandsReg: Command[] = [
 	},
 	{
 		command: new SlashCommandBuilder().setName('acfun').setDescription('Returns cs info'),
-		execute: async (interaction: CommandInteraction, resolver?: DependencyResolver): Promise<InteractionResponse | Message | undefined> => {
-			const config = resolver!.resolve<ConfigService>(DependencyType.Config).config.acfun;
-			const imgDownloader = resolver?.resolve<ImageDownloader>(DependencyType.ImgDownloader);
-			const logger = resolver?.resolve<LoggerService>(DependencyType.Logger);
-
+		execute: async (interaction: CommandInteraction, injector?: ReflectiveInjector): Promise<InteractionResponse | Message | undefined> => {
+			const config = (injector?.get(ConfigService) as ConfigService).config.acfun;
+			const logger = injector?.get(LoggerService) as LoggerService;
+			const imgDownloader = injector?.get(ImgDownloaderService) as ImgDownloaderService;;
+			
 			try {
 				// doing this approach because if request is slower than 3s it will crash the bot
 				// https://stackoverflow.com/a/68774492/6743948

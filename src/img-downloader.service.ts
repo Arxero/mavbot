@@ -1,11 +1,13 @@
 import axios from 'axios';
 import fs from 'fs';
+import { Injectable } from 'injection-js';
 import path from 'path';
 import { Stream } from 'stream';
 import { FileHelper } from './helpers';
 import { LoggerService } from './logger.service';
 
-export class ImageDownloader extends FileHelper {
+@Injectable()
+export class ImgDownloaderService extends FileHelper {
 	private assets = 'assets';
 
 	constructor(private logger: LoggerService) {

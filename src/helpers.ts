@@ -25,6 +25,17 @@ export function clientReady(client: Client, logger: LoggerService): Promise<void
 	});
 }
 
+export async function delay(ms: number, callback?: () => void): Promise<void> {
+	return new Promise<void>(resolve =>
+		setTimeout(() => {
+			if (callback) {
+				callback();
+			}
+			resolve();
+		}, ms * 1000)
+	);
+}
+
 export function tryAddPlayers(message: EmbedBuilder, players: Player[]): void {
 	if (!players.length) {
 		return;

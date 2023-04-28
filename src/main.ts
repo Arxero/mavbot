@@ -1,34 +1,29 @@
+import 'reflect-metadata';
 import { ConfigService } from './config.service';
-import { ImageDownloader } from './img-downloader';
+import { ImgDownloaderService } from './img-downloader.service';
 import { Client, Events } from 'discord.js';
 import { commands, commandsReg } from './commands';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v10';
-import { DependencyResolver, DependencyType } from './dependency.resolver';
 import { LoggerService } from './logger.service';
 import { PlayersCheckService } from './players-check.service';
 import { clientReady } from './helpers';
+import { ReflectiveInjector } from 'injection-js';
+
 
 async function bootstrap(): Promise<void> {
-	const resolver = new DependencyResolver();
-	const logger = new LoggerService();
-	const config = new ConfigService(logger);
-	const playersCheck = new PlayersCheckService(logger, config);
-
-	resolver.register(DependencyType.Config, config);
-	resolver.register(DependencyType.ImgDownloader, new ImageDownloader(logger));
-	resolver.register(DependencyType.Logger, logger);
-	resolver.register(DependencyType.PlayersCheck, playersCheck);
-
-	await config.loadConfigs();
-
-	const client = new Client({ intents: config.config.bot.intents });
-	client.login(config.config.bot.token);
-
-	await clientReady(client, logger);
-	await playersCheck.startPlayersCheck(client);
+	const injector = ReflectiveInjector.resolveAndCreate([LoggerService, ConfigService, ImgDownloaderService, PlayersCheckService]);
+	const config = injector.get(ConfigService) as ConfigService;
+	const logger = injector.get(LoggerService) as LoggerService;
+	const playersCheck = injector.get(PlayersCheckService) as PlayersCheckService;
 
 	const rest = new REST({ version: '10' }).setToken(config.config.bot.token);
+	const client = new Client({ intents: config.config.bot.intents });
+
+	client.login(config.config.bot.token);
+	config.loadConfigs();
+	await clientReady(client, logger);
+	playersCheck.startPlayersCheck(client);
 
 	try {
 		await rest.put(Routes.applicationGuildCommands(config.config.bot.clientId, config.config.bot.guildId!), {
@@ -51,7 +46,7 @@ async function bootstrap(): Promise<void> {
 		}
 
 		try {
-			await command.execute(interaction, resolver);
+			await command.execute(interaction, injector);
 			logger.log(`Command "${command.command.name}" has been used by ${interaction.member?.user.username}.`);
 		} catch (error) {
 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });

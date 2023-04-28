@@ -1,9 +1,11 @@
 import { BaseMessageOptions, Client, EmbedBuilder, TextChannel } from 'discord.js';
 import { query, QueryResult } from 'gamedig';
+import { Injectable } from 'injection-js';
 import { ConfigService } from './config.service';
-import { interpolate } from './helpers';
+import { delay, interpolate } from './helpers';
 import { LoggerService } from './logger.service';
 
+@Injectable()
 export class PlayersCheckService {
 	private currentMap?: string;
 
@@ -16,6 +18,7 @@ export class PlayersCheckService {
 				type: this.config.config.acfun.gameType,
 				host: this.config.config.acfun.host,
 				port: this.config.config.acfun.port,
+                maxAttempts: this.config.config.acfun.maxAttempts
 			});
 			const showOnlinePlayers = serverInfo.players.length >= this.config.config.onlinePlayers.playersTreshhold;
 
@@ -33,9 +36,7 @@ export class PlayersCheckService {
 			this.logger.error(`Error while fetching server data for ${PlayersCheckService.name}: ${error}`);
 		}
 
-		setInterval(async () => {
-			await this.startPlayersCheck(client);
-		}, this.config.config.onlinePlayers.checkInterval * 1000);
+        await delay(this.config.config.onlinePlayers.checkInterval, this.startPlayersCheck.bind(this, client));
 	}
 
 	private getMapMessage(data: QueryResult): BaseMessageOptions {

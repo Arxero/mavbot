@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { ColorResolvable, Colors, IntentsBitField } from 'discord.js';
 import { Type } from 'gamedig';
+import { Injectable } from 'injection-js';
+import { delay } from './helpers';
 import { LoggerService } from './logger.service';
 
 interface BotConfig {
@@ -41,6 +43,7 @@ export interface Config {
 
 type ExternalConfig = Pick<Config, 'acfun' | 'onlinePlayers' | 'configRefreshTime'>;
 
+@Injectable()
 export class ConfigService {
 	config: Config;
 
@@ -93,8 +96,6 @@ export class ConfigService {
 			this.logger.error(`Loading settings has failed with Error: ${error}`);
 		}
 
-		setInterval(async () => {
-			await this.loadConfigs();
-		}, this.config.configRefreshTime * 1000);
+		await delay(this.config.configRefreshTime, this.loadConfigs.bind(this));
 	}
 }

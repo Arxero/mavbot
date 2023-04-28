@@ -1,4 +1,5 @@
 import fs, { WriteStream } from 'fs';
+import { Injectable } from 'injection-js';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import path from 'path';
@@ -11,6 +12,7 @@ enum LogLevel {
 	DEBUG = 'debug',
 }
 
+@Injectable()
 export class LoggerService extends FileHelper {
 	private logStream: WriteStream;
 	private logDirectory = 'logs';
