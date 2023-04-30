@@ -12,6 +12,10 @@ export class PlayersCheckService {
 	constructor(private logger: LoggerService, private config: ConfigService) {}
 
 	async startPlayersCheck(client: Client): Promise<void> {
+        if (!this.config.config.onlinePlayers.isEnabled) {
+            return;
+        }
+
 		try {
 			const channel = client.channels.cache.get(this.config.config.onlinePlayers.channelId) as TextChannel;
 			const serverInfo = await query({

@@ -23,7 +23,7 @@ export const commandsReg: Command[] = [
 		execute: async (interaction: CommandInteraction, injector?: ReflectiveInjector): Promise<InteractionResponse | Message | undefined> => {
 			const config = (injector?.get(ConfigService) as ConfigService).config.acfun;
 			const logger = injector?.get(LoggerService) as LoggerService;
-			const imgDownloader = injector?.get(ImgDownloaderService) as ImgDownloaderService;;
+			const imgDownloader = injector?.get(ImgDownloaderService) as ImgDownloaderService;
 			
 			try {
 				// doing this approach because if request is slower than 3s it will crash the bot

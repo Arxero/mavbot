@@ -32,6 +32,7 @@ interface OnlinePlayersConfig {
 	mapChangeText: string;
 	playersCheckText: string;
 	playersCheckFieldText: string;
+	isEnabled: boolean;
 }
 
 export interface Config {
@@ -76,6 +77,7 @@ export class ConfigService {
 				mapChangeText: 'map change 🗺️',
 				playersCheckText: '{{ playersCount }} players in-game',
 				playersCheckFieldText: '🔽',
+				isEnabled: true,
 			},
 			configRefreshTime: 300,
 		};
