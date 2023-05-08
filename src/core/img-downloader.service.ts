@@ -3,7 +3,7 @@ import fs from 'fs';
 import { Injectable } from 'injection-js';
 import path from 'path';
 import { Stream } from 'stream';
-import { FileHelper } from './helpers';
+import { FileHelper } from './utils';
 import { LoggerService } from './logger.service';
 
 @Injectable()
@@ -19,8 +19,8 @@ export class ImgDownloaderService extends FileHelper {
 			return;
 		}
 
-        this.ensureDirectory(this.assets);
-		const imagePath = path.resolve(__dirname, this.assets, this.getFileName(url));
+        this.ensureDirectory(this.assets, '..');
+		const imagePath = path.resolve(__dirname, '..', this.assets, this.getFileName(url));
 
 		try {
 			const image = await axios.get<Stream>(url, { responseType: 'stream' });

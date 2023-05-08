@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"target": "es2017",
+		"target": "ES2022",
 		"module": "commonjs",
 		"rootDir": "./src",
 		"resolveJsonModule": true,
@@ -16,7 +16,7 @@
 		"strictNullChecks": true,
 		"strictFunctionTypes": true,
 		"strictBindCallApply": true,
-		// "strictPropertyInitialization": true,
+		"strictPropertyInitialization": false, // cant cause of entity classes
 		"noImplicitThis": true,
 		"useUnknownInCatchVariables": false,
 		"alwaysStrict": true,
@@ -26,6 +26,8 @@
 		"allowJs": false,
 		"skipLibCheck": true,
 		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true
-	}
+		"experimentalDecorators": true,
+	},
+
+	"exclude": ["node_modules", "dist"]
 }

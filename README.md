@@ -181,3 +181,8 @@ WantedBy=multi-user.target
         kill -9 PID
 
 - where `PID` is the id you copied from htop
+
+### Fix (for column) Incorrect string value: '\xD0\x92\xD1\x96\xD0\xBA...'
+- SHOW CREATE TABLE mavbot.player_sessions;
+
+        ALTER TABLE mavbot.player_sessions CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

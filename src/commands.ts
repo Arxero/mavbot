@@ -2,14 +2,12 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder } from 'discord.js';
 import { query } from 'gamedig';
 import { ReflectiveInjector } from 'injection-js';
-import { ConfigService } from './config.service';
-import { tryAddPlayers } from './helpers';
-import { ImgDownloaderService } from './img-downloader.service';
-import { LoggerService } from './logger.service';
+import { ConfigService, ImgDownloaderService, LoggerService, Player, TopPlayersPeriod, tryAddPlayers } from './core';
+import { TopPlayersService } from './top-players.service';
 
 interface Command {
 	command: SlashCommandBuilder;
-	execute: (interaction: CommandInteraction, injector?: ReflectiveInjector) => Promise<InteractionResponse | Message | undefined>;
+	execute: (interaction: CommandInteraction, injector: ReflectiveInjector) => Promise<InteractionResponse | Message | void>;
 }
 
 export const commands = new Collection<string, Command>();
@@ -20,7 +18,7 @@ export const commandsReg: Command[] = [
 	},
 	{
 		command: new SlashCommandBuilder().setName('acfun').setDescription('Returns cs info'),
-		execute: async (interaction: CommandInteraction, injector?: ReflectiveInjector): Promise<InteractionResponse | Message | undefined> => {
+		execute: async (interaction: CommandInteraction, injector?: ReflectiveInjector): Promise<Message | void> => {
 			const config = (injector?.get(ConfigService) as ConfigService).config.acfun;
 			const logger = injector?.get(LoggerService) as LoggerService;
 			const imgDownloader = injector?.get(ImgDownloaderService) as ImgDownloaderService;
@@ -46,7 +44,7 @@ export const commandsReg: Command[] = [
 						}`
 					);
 
-				tryAddPlayers(embed, serverInfo.players);
+				tryAddPlayers(embed, serverInfo.players as Player[]);
 				embed.setFooter({ text: `Current Players: ${serverInfo.players.length} / ${serverInfo.maxplayers}`, iconURL: config.emdbedIconUrl });
 
 				return await interaction.editReply({
@@ -55,6 +53,19 @@ export const commandsReg: Command[] = [
 				});
 			} catch (error) {
 				logger?.log(`Error while fetching server data: ${error}`);
+			}
+		},
+	},
+	{
+		command: new SlashCommandBuilder().setName('top-players').setDescription('Returns top players of the day'),
+		execute: async (interaction: CommandInteraction, injector: ReflectiveInjector): Promise<void> => {
+			const logger = injector?.get(LoggerService) as LoggerService;
+			const topPlayers = injector?.get(TopPlayersService) as TopPlayersService;
+
+			try {
+				await topPlayers.showTopPlayers(TopPlayersPeriod.Today, interaction);
+			} catch (error) {
+				logger?.log(`Error while getting top players: ${error}`);
 			}
 		},
 	},

@@ -1,48 +1,9 @@
 import axios from 'axios';
-import { ColorResolvable, Colors, IntentsBitField } from 'discord.js';
-import { Type } from 'gamedig';
+import { Colors, IntentsBitField } from 'discord.js';
 import { Injectable } from 'injection-js';
-import { delay } from './helpers';
+import { delay } from './utils';
 import { LoggerService } from './logger.service';
-
-interface BotConfig {
-	token: string;
-	clientId: string;
-	guildId: string;
-	intents: number[];
-}
-
-interface AcConfig {
-	gameType: Type;
-	host: string;
-	port?: number;
-	maxAttempts?: number;
-	embedColor: ColorResolvable;
-	embedIP?: string;
-	emdbedIconUrl?: string;
-	embedFile?: string;
-}
-
-interface OnlinePlayersConfig {
-	checkInterval: number;
-	playersTreshhold: number;
-	channelId: string;
-	embedMapColor: ColorResolvable,
-	embedPlayersColor: ColorResolvable,
-	mapChangeText: string;
-	playersCheckText: string;
-	playersCheckFieldText: string;
-	isEnabled: boolean;
-}
-
-export interface Config {
-	bot: BotConfig;
-	acfun: AcConfig;
-	onlinePlayers: OnlinePlayersConfig;
-	configRefreshTime: number;
-}
-
-type ExternalConfig = Pick<Config, 'acfun' | 'onlinePlayers' | 'configRefreshTime'>;
+import { Config, ExternalConfig } from './models';
 
 @Injectable()
 export class ConfigService {
@@ -55,6 +16,7 @@ export class ConfigService {
 		}
 
 		this.config = {
+			configRefreshTime: 300,
 			bot: {
 				token: process.env.BOT_TOKEN,
 				clientId: process.env.APPLICATION_ID,
@@ -79,7 +41,10 @@ export class ConfigService {
 				playersCheckFieldText: '🔽',
 				isEnabled: true,
 			},
-			configRefreshTime: 300,
+			topPlayers: {
+				isEnabled: true,
+				scoreThreshold: 5,
+			}
 		};
 	}
 

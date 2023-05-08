@@ -3,7 +3,7 @@ import { Injectable } from 'injection-js';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 import path from 'path';
-import { FileHelper } from './helpers';
+import { FileHelper } from './utils';
 
 enum LogLevel {
 	ERROR = 'error',
@@ -16,11 +16,11 @@ enum LogLevel {
 export class LoggerService extends FileHelper {
 	private logStream: WriteStream;
 	private logDirectory = 'logs';
-	private logFilePath = path.resolve(__dirname, '..' ,this.logDirectory, this.getFileName());
+	private logFilePath = path.resolve(__dirname, '..', '..' ,this.logDirectory, this.getFileName());
 
 	constructor() {
         super();
-        this.ensureDirectory(this.logDirectory, true);
+        this.ensureDirectory(this.logDirectory, '..', '..');
 		this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
 	}
 

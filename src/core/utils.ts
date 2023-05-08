@@ -2,13 +2,13 @@ import path from 'path';
 import fs from 'fs';
 import { APIEmbedField, Client, EmbedBuilder, Events } from 'discord.js';
 import { LoggerService } from './logger.service';
-import { Player } from 'gamedig';
 import moment from 'moment';
 import { Dictionary } from 'lodash';
+import { Player } from './models';
 
 export abstract class FileHelper {
-	ensureDirectory(directory: string, withParent = false): void {
-		const directoryPath = path.resolve(__dirname, withParent ? '..' : '', directory);
+	ensureDirectory(directory: string, ...parents: string[]): void {
+		const directoryPath = path.resolve(__dirname, ...parents, directory);
 
 		if (!fs.existsSync(directoryPath)) {
 			fs.mkdirSync(directoryPath);
@@ -43,19 +43,10 @@ export function tryAddPlayers(message: EmbedBuilder, players: Player[]): void {
 
 	const fields: APIEmbedField[] = [
 		{ name: 'Player Name', value: `${players.map(p => p.name || 'unknown').join('\n')}`, inline: true },
-		{ name: 'Score', value: `${players.map(p => (p.raw as any).score || 0).join('\n')}`, inline: true },
+		{ name: 'Score', value: `${players.map(p => p.raw?.score || 0).join('\n')}`, inline: true },
 		{
 			name: 'Time',
-			value: `${players
-				.map(p => {
-					let time = (p.raw as any).time || 0;
-					if (time) {
-						time = moment.utc(time * 1000).format('H:mm:ss');
-					}
-
-					return time;
-				})
-				.join('\n')}`,
+			value: `${players.map(p => moment.utc((p.raw?.time || 0) * 1000).format('H:mm:ss')).join('\n')}`,
 			inline: true,
 		},
 	];
