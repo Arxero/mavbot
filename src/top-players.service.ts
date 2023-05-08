@@ -94,6 +94,14 @@ export class TopPlayersService {
            3: Medals.Top3
          };
 
-        return players.map((p, i) => `\`${badges[i + 1] || ''} ${p.name}\``);
+        return players.map((p, i) => {
+            const badge = badges[i + 1] || '';
+            let name = `${badge} ${p.name}`;
+            if (badge) {
+                name = `\`${name}\``;
+            }
+
+            return name;
+        });
     }
 }
