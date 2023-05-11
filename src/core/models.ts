@@ -53,6 +53,7 @@ export interface PlayerSession {
 	left?: Date;
 	timePlayed?: number;
 	saved?: boolean;
+	currentMapScore: number;
 }
 
 export enum SortDirection {

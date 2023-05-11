@@ -6,7 +6,7 @@ import { ConfigService, ImgDownloaderService, LoggerService, Player, TopPlayersP
 import { TopPlayersService } from './top-players.service';
 
 interface Command {
-	command: SlashCommandBuilder;
+	command: SlashCommandBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'>;
 	execute: (interaction: CommandInteraction, injector: ReflectiveInjector) => Promise<InteractionResponse | Message | void>;
 }
 
@@ -22,7 +22,7 @@ export const commandsReg: Command[] = [
 			const config = (injector?.get(ConfigService) as ConfigService).config.acfun;
 			const logger = injector?.get(LoggerService) as LoggerService;
 			const imgDownloader = injector?.get(ImgDownloaderService) as ImgDownloaderService;
-			
+
 			try {
 				// doing this approach because if request is slower than 3s it will crash the bot
 				// https://stackoverflow.com/a/68774492/6743948
@@ -57,13 +57,20 @@ export const commandsReg: Command[] = [
 		},
 	},
 	{
-		command: new SlashCommandBuilder().setName('top-players').setDescription('Returns top players of the day'),
+		command: new SlashCommandBuilder()
+			.setName('top-players')
+			.setDescription('Returns top players of the day')
+			.addStringOption(o => o.setName('time').setDescription('Top players in the given time period.').addChoices(
+				{ name: 'Today', value: TopPlayersPeriod.Today },
+				{ name: 'Yesterday', value: TopPlayersPeriod.Yesterday },
+			)),
 		execute: async (interaction: CommandInteraction, injector: ReflectiveInjector): Promise<void> => {
 			const logger = injector?.get(LoggerService) as LoggerService;
 			const topPlayers = injector?.get(TopPlayersService) as TopPlayersService;
+			const period = (interaction.options.get('time')?.value || TopPlayersPeriod.Today) as TopPlayersPeriod;
 
 			try {
-				await topPlayers.showTopPlayers(TopPlayersPeriod.Today, interaction);
+				await topPlayers.showTopPlayers(period, interaction);
 			} catch (error) {
 				logger?.log(`Error while getting top players: ${error}`);
 			}

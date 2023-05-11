@@ -46,6 +46,7 @@ export class DbService {
 	async savePlayerSessions(model: PlayerSession[]): Promise<PlayerSessionEntity[]> {
 		try {
 			const data = model.map(x => new PlayerSessionEntity(x));
+			this.logger.log(`Saving: ${model.map(ps => ps.name).join(', ')} to the database.`);
 
 			return await this.playerSessionRepo.save(data);
 		} catch (error) {

@@ -27,6 +27,7 @@ export class PlayersCheckService {
 				maxAttempts: this.config.config.acfun.maxAttempts,
 			});
 			const showOnlinePlayers = serverInfo.players.length >= this.config.config.onlinePlayers.playersTreshhold;
+			const mapChanged = this.currentMap !== serverInfo.map;
 
 			if (showOnlinePlayers) {
 				channel.send(this.getPlayersMessage(serverInfo));
@@ -34,11 +35,11 @@ export class PlayersCheckService {
 
 			if (!this.currentMap) {
 				this.currentMap = serverInfo.map;
-			} else if (this.currentMap !== serverInfo.map && showOnlinePlayers) {
+			} else if (mapChanged && showOnlinePlayers) {
 				this.currentMap = serverInfo.map;
 				channel.send(this.getMapMessage(serverInfo));
 			}
-			await this.trySetPlayers(serverInfo.players as Player[]);
+			await this.trySetPlayers(serverInfo.players as Player[], mapChanged);
 		} catch (error) {
 			this.logger.error(`Error while fetching server data for ${PlayersCheckService.name}: ${error}`);
 		}
@@ -77,18 +78,20 @@ export class PlayersCheckService {
 		};
 	}
 
-	private async trySetPlayers(players: Player[]): Promise<void> {
-        const namedPlayers = players.filter(x => !!x.name);
-        if (this.checkDate?.getDay() !== moment().day()) {
-            this.playerSessions = {};
+	private async trySetPlayers(players: Player[], mapChanged: boolean): Promise<void> {
+		const namedPlayers = players.filter(x => !!x.name);
+		if (this.checkDate?.getDay() !== moment().day()) {
+			this.playerSessions = {};
 		}
-        
+
 		for (const player of namedPlayers) {
 			const current = this.playerSessions[player.name!];
 			const activeSession = current?.find(s => !s.left);
+			const score = player.raw?.score || 0;
 			const playerSession: PlayerSession = {
 				name: player.name!,
-				score: player.raw?.score || 0,
+				score: 0,
+				currentMapScore: score,
 				joined: moment().toDate(),
 			};
 
@@ -100,26 +103,42 @@ export class PlayersCheckService {
 				current.push(playerSession);
 			} else if (activeSession) {
 				// continuing to play
-				activeSession.score += player.raw?.score || 0;
+				if (mapChanged) {
+					activeSession.score += activeSession.currentMapScore;
+					activeSession.currentMapScore = 0;
+				} else {
+					activeSession.currentMapScore = score;
+				}
 			}
 		}
 
+		await this.processSessions(namedPlayers);
+		this.checkDate = moment().toDate();
+	}
+
+	async processSessions(namedPlayers: Player[]): Promise<void> {
 		for (const player in this.playerSessions) {
 			const currentPlayerSessions = this.playerSessions[player];
 			const activeSession = currentPlayerSessions?.find(s => !s.left);
 
 			if (activeSession && !namedPlayers.some(p => p.name === activeSession.name)) {
 				activeSession.left = moment().toDate();
-                activeSession.timePlayed = +(moment(activeSession.left).diff(activeSession.joined) / 1000).toFixed(0);
+				activeSession.timePlayed = +(moment(activeSession.left).diff(activeSession.joined) / 1000).toFixed(0);
+				
+				const userLeftBeforeMapChange = activeSession.currentMapScore > 0 && activeSession.score === 0;
+				if (userLeftBeforeMapChange) {
+					activeSession.score = activeSession.currentMapScore;
+				}
+
 				await this.save();
 			}
 		}
-
-		this.checkDate = moment().toDate();
 	}
 
 	async save(): Promise<void> {
-		const notSaved = Object.values(this.playerSessions).flat().filter(ps => !ps.saved && ps.left);
+		const notSaved = Object.values(this.playerSessions)
+			.flat()
+			.filter(ps => !ps.saved && ps.left);
 		await this.db.savePlayerSessions(notSaved);
 
 		for (const session of notSaved) {
@@ -127,6 +146,6 @@ export class PlayersCheckService {
 			if (currentSessions) {
 				currentSessions.saved = true;
 			}
-		}	
+		}
 	}
 }

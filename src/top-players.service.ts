@@ -18,11 +18,12 @@ export class TopPlayersService {
 		let todayEmpty = false;
 
 		if (!players.length) {
-			players = await this.getTopPlayers(TopPlayersPeriod.Yesterday);
+            period = TopPlayersPeriod.Yesterday;
+			players = await this.getTopPlayers(period);
 			todayEmpty = true;
 		}
 
-		const embed = this.createEmbed(players, todayEmpty);
+		const embed = this.createEmbed(players, todayEmpty, period);
 		if (embed) {
 			interaction.reply({ embeds: [embed] });
 
@@ -66,12 +67,13 @@ export class TopPlayersService {
 		}));
 	}
 
-	private createEmbed(players: TopPlayer[], todayEmpty?: boolean): EmbedBuilder | undefined {
+	private createEmbed(players: TopPlayer[], todayEmpty?: boolean, period?: TopPlayersPeriod): EmbedBuilder | undefined {
 		if (!players.length && todayEmpty) {
 			return;
 		}
 
-		const title = players.length && todayEmpty ? 'No top players for today, showing from yesterday' : 'Top players of the day';
+        const subStr = period === TopPlayersPeriod.Yesterday ? 'yesterday' : 'the day';
+		const title = players.length && todayEmpty ? 'No top players for today, showing from yesterday' : `Top players of ${subStr}`;
 
 		return new EmbedBuilder()
 			.setColor('#FFAB33')
