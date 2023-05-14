@@ -1,13 +1,13 @@
-import { Client, CommandInteraction, EmbedBuilder, TextChannel } from 'discord.js';
+import { AttachmentBuilder, BaseMessageOptions, Client, CommandInteraction, EmbedBuilder, TextChannel } from 'discord.js';
 import { Injectable } from 'injection-js';
 import { NumericDictionary } from 'lodash';
 import moment from 'moment';
 import { scheduleJob } from 'node-schedule';
-import { ConfigService, DbService, Medals, PlayerSessionParams, TopPlayer, TopPlayersPeriod } from './core';
+import { CanvasService, ConfigService, DbService, Medals, PlayerSessionParams, TopPlayer, TopPlayersPeriod } from './core';
 
 @Injectable()
 export class TopPlayersService {
-	constructor(private config: ConfigService, private db: DbService, private client: Client) {}
+	constructor(private config: ConfigService, private db: DbService, private client: Client, private canvas: CanvasService) {}
 
 	async showTopPlayers(period: TopPlayersPeriod, interaction: CommandInteraction): Promise<void> {
 		if (!this.config.config.topPlayers.isEnabled) {
@@ -46,10 +46,18 @@ export class TopPlayersService {
         if (!players.length) {
             return;
         }
+		
+		const name = players[0].name;
+		const image = await this.canvas.topPlayer(name, 'PLAYER OF THE DAY', moment().format('DD/MM/YYYY'));
+		const attachment = new AttachmentBuilder(image, { name: `top-player-${name}.png` });
+		const message: BaseMessageOptions = {
+			content: `Congrats to **${name}** he/she is today's player of the day! 🥳`,
+			files: [attachment],
+			embeds: [this.createEmbed(players)!]
+		};
 
-		const embed = this.createEmbed(players);
 		const channel = this.client.channels.cache.get(this.config.config.onlinePlayers.channelId) as TextChannel;
-        channel.send({ embeds: [embed!] });
+        channel.send(message);
 	}
 
 	private async getTopPlayers(period: TopPlayersPeriod): Promise<TopPlayer[]> {

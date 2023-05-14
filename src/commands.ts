@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder } from 'discord.js';
 import { query } from 'gamedig';
 import { ReflectiveInjector } from 'injection-js';
-import { CanvasService, ConfigService, ImgDownloaderService, LoggerService, Player, TopPlayersPeriod, tryAddPlayers } from './core';
+import { ConfigService, ImgDownloaderService, LoggerService, Player, TopPlayersPeriod, tryAddPlayers } from './core';
 import { TopPlayersService } from './top-players.service';
 
 interface Command {
@@ -77,20 +77,7 @@ export const commandsReg: Command[] = [
 				logger?.log(`Error while getting top players: ${error}`);
 			}
 		},
-	},
-	{
-		command: new SlashCommandBuilder().setName('temp').setDescription('temp'),
-		execute: async (interaction: CommandInteraction, injector: ReflectiveInjector): Promise<void> => {
-			const logger = injector?.get(LoggerService) as LoggerService;
-			const canvas = injector?.get(CanvasService) as CanvasService;
-
-			try {
-				await canvas.topPlayer(interaction);
-			} catch (error) {
-				logger?.log(`Error while getting top players: ${error}`);
-			}
-		},
-	},
+	}
 ].map(command => {
 	commands.set(command.command.name, command);
 

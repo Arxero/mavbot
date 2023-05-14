@@ -35,9 +35,6 @@ async function bootstrap(): Promise<void> {
 	playersCheck.startPlayersCheck();
 	topPlayers.startDailyJob();
 
-	// const canvas = injector.get(CanvasService) as CanvasService;
-	// canvas.topPlayer();
-
 	try {
 		await rest.put(Routes.applicationGuildCommands(config.config.bot.clientId, config.config.bot.guildId!), {
 			body: commandsReg.map(c => c.command.toJSON()),

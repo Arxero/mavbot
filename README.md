@@ -186,3 +186,15 @@ WantedBy=multi-user.target
 - SHOW CREATE TABLE mavbot.player_sessions;
 
         ALTER TABLE mavbot.player_sessions CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+### [How to Add arial font to Ubuntu - related ot canvas service](https://askubuntu.com/questions/651441/how-to-install-arial-font-and-other-windows-fonts-in-ubuntu)
+
+    sudo apt install ttf-mscorefonts-installer
+    sudo fc-cache -f
+
+in a terminal.
+
+After that, check with
+
+    fc-match Arial
+
