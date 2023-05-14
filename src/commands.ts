@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import { Collection, CommandInteraction, InteractionResponse, Message, EmbedBuilder } from 'discord.js';
 import { query } from 'gamedig';
 import { ReflectiveInjector } from 'injection-js';
-import { ConfigService, ImgDownloaderService, LoggerService, Player, TopPlayersPeriod, tryAddPlayers } from './core';
+import { CanvasService, ConfigService, ImgDownloaderService, LoggerService, Player, TopPlayersPeriod, tryAddPlayers } from './core';
 import { TopPlayersService } from './top-players.service';
 
 interface Command {
@@ -60,10 +60,12 @@ export const commandsReg: Command[] = [
 		command: new SlashCommandBuilder()
 			.setName('top-players')
 			.setDescription('Returns top players of the day')
-			.addStringOption(o => o.setName('time').setDescription('Top players in the given time period.').addChoices(
-				{ name: 'Today', value: TopPlayersPeriod.Today },
-				{ name: 'Yesterday', value: TopPlayersPeriod.Yesterday },
-			)),
+			.addStringOption(o =>
+				o
+					.setName('time')
+					.setDescription('Top players in the given time period.')
+					.addChoices({ name: 'Today', value: TopPlayersPeriod.Today }, { name: 'Yesterday', value: TopPlayersPeriod.Yesterday })
+			),
 		execute: async (interaction: CommandInteraction, injector: ReflectiveInjector): Promise<void> => {
 			const logger = injector?.get(LoggerService) as LoggerService;
 			const topPlayers = injector?.get(TopPlayersService) as TopPlayersService;
@@ -71,6 +73,19 @@ export const commandsReg: Command[] = [
 
 			try {
 				await topPlayers.showTopPlayers(period, interaction);
+			} catch (error) {
+				logger?.log(`Error while getting top players: ${error}`);
+			}
+		},
+	},
+	{
+		command: new SlashCommandBuilder().setName('temp').setDescription('temp'),
+		execute: async (interaction: CommandInteraction, injector: ReflectiveInjector): Promise<void> => {
+			const logger = injector?.get(LoggerService) as LoggerService;
+			const canvas = injector?.get(CanvasService) as CanvasService;
+
+			try {
+				await canvas.topPlayer(interaction);
 			} catch (error) {
 				logger?.log(`Error while getting top players: ${error}`);
 			}

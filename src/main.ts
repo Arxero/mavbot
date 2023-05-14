@@ -6,12 +6,18 @@ import { Routes } from 'discord-api-types/v10';
 import { PlayersCheckService } from './players-check.service';
 import { ReflectiveInjector } from 'injection-js';
 import { TopPlayersService } from './top-players.service';
-import { clientReady, ConfigService, DbService, ImgDownloaderService, LoggerService } from './core';
+import { CanvasService, clientReady, ConfigService, DbService, ImgDownloaderService, LoggerService } from './core';
 
 async function bootstrap(): Promise<void> {
 	const injector = ReflectiveInjector.resolveAndCreate([
-		LoggerService, ConfigService, ImgDownloaderService, PlayersCheckService, TopPlayersService, DbService,
-		{ provide: Client, useFactory: () => new Client({ intents: config.config.bot.intents }) }
+		LoggerService,
+		ConfigService,
+		ImgDownloaderService,
+		PlayersCheckService,
+		TopPlayersService,
+		DbService,
+		CanvasService,
+		{ provide: Client, useFactory: () => new Client({ intents: config.config.bot.intents }) },
 	]);
 
 	const config = injector.get(ConfigService) as ConfigService;
@@ -29,6 +35,8 @@ async function bootstrap(): Promise<void> {
 	playersCheck.startPlayersCheck();
 	topPlayers.startDailyJob();
 
+	// const canvas = injector.get(CanvasService) as CanvasService;
+	// canvas.topPlayer();
 
 	try {
 		await rest.put(Routes.applicationGuildCommands(config.config.bot.clientId, config.config.bot.guildId!), {

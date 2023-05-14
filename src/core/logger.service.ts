@@ -17,14 +17,15 @@ export class LoggerService extends FileHelper {
 	private logStream: WriteStream;
 	private logDirectory = 'logs';
 	private logFilePath = path.resolve(__dirname, '..', '..' ,this.logDirectory, this.getFileName());
+	private lastLogDate: Date;
 
 	constructor() {
         super();
         this.ensureDirectory(this.logDirectory, '..', '..');
-		this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
 	}
 
 	log(message: string, level: LogLevel = LogLevel.INFO, metadata: any = {}): void {
+		this.ensureStream();
 		const logLine = this.formatLogLine(message, level, metadata);
 		this.logStream.write(logLine);
 
@@ -33,6 +34,8 @@ export class LoggerService extends FileHelper {
         } else {
             console.log(message);
         }
+
+		this.lastLogDate = moment().toDate();
 	}
 
 	error(message: string, metadata: any = {}): void {
@@ -50,4 +53,10 @@ export class LoggerService extends FileHelper {
 	private getFileName(): string {
 		return `${moment().format('DD-MMM-YYYY')}.log`;
 	} 
+
+	private ensureStream(): void {
+		if (!this.logStream || this.lastLogDate && this.lastLogDate.getDay() !== moment().day()) {
+			this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
+		}
+	}
 }

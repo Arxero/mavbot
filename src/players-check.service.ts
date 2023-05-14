@@ -26,6 +26,7 @@ export class PlayersCheckService {
 				port: this.config.config.acfun.port,
 				maxAttempts: this.config.config.acfun.maxAttempts,
 			});
+			this.logger.log(`Server scanned with players: ${JSON.stringify(serverInfo.players)}`,);
 			const showOnlinePlayers = serverInfo.players.length >= this.config.config.onlinePlayers.playersTreshhold;
 			const mapChanged = this.currentMap !== serverInfo.map;
 

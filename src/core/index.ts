@@ -5,3 +5,4 @@ export * from './config.service';
 export * from './utils';
 export * from './db.service';
 export { PlayerSessionParams } from './player-session.entity';
+export * from './canvas.service';
