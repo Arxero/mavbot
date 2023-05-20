@@ -55,6 +55,10 @@ export function tryAddPlayers(message: EmbedBuilder, players: Player[]): void {
 }
 
 export function interpolate(str: string, params: Dictionary<string | number>): string {
+	if (!str) {
+		return '';
+	}
+
 	for (const key in params) {
 		const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
 		str = str.replace(regex, params[key].toString());

@@ -3,10 +3,19 @@ import { Injectable } from 'injection-js';
 import { NumericDictionary } from 'lodash';
 import moment from 'moment';
 import { scheduleJob } from 'node-schedule';
-import { CanvasService, ConfigService, DbService, Medals, PlayerSessionParams, TopPlayer, TopPlayersPeriod } from './core';
+import { CanvasService, ConfigService, DbService, interpolate, Medals, PlayerSessionParams, TopPlayer, TopPlayersPeriod } from './core';
 
 @Injectable()
 export class TopPlayersService {
+	private messages: Record<TopPlayersPeriod, { fallback: string; topPlayers: string; period: string }> = {
+		[TopPlayersPeriod.Today]: { fallback: 'No Top Players for today', topPlayers: 'Top Players of the Day', period: 'day' },
+		[TopPlayersPeriod.Yesterday]: { fallback: 'No Top Players for yesterday', topPlayers: 'Top Players of Yesterday', period: 'day' },
+		[TopPlayersPeriod.ThisWeek]: { fallback: 'No Top Players for last week', topPlayers: 'Top Players of the Week ({{ time }})', period: 'week' },
+		[TopPlayersPeriod.ThisMonth]: { fallback: 'No Top Players for last month', topPlayers: 'Top Players of the Month ({{ time }})', period: 'month' },
+	};
+	
+	private params: PlayerSessionParams;
+
 	constructor(private config: ConfigService, private db: DbService, private client: Client, private canvas: CanvasService) {}
 
 	async showTopPlayers(period: TopPlayersPeriod, interaction: CommandInteraction): Promise<void> {
@@ -17,20 +26,21 @@ export class TopPlayersService {
 		let players = await this.getTopPlayers(period);
 		let todayEmpty = false;
 
-		if (!players.length) {
-            period = TopPlayersPeriod.Yesterday;
+		if (!players.length && period === TopPlayersPeriod.Today) {
+			period = TopPlayersPeriod.Yesterday;
 			players = await this.getTopPlayers(period);
 			todayEmpty = true;
 		}
 
-		const embed = this.createEmbed(players, todayEmpty, period);
+		const embed = this.createEmbed(players, period, todayEmpty);
+
 		if (embed) {
 			interaction.reply({ embeds: [embed] });
-
-			return;
+		} else if (!players.length && todayEmpty) {
+			interaction.reply('No Top Players from today or yesterday. 😕');
+		} else {
+			interaction.reply(this.messages[period].fallback + ' 😕');
 		}
-
-		interaction.reply('No Top Players from today or yesterday. 😕');
 	}
 
 	startDailyJob(): void {
@@ -43,31 +53,31 @@ export class TopPlayersService {
 		}
 
 		const players = await this.getTopPlayers(TopPlayersPeriod.Today);
-        if (!players.length) {
-            return;
-        }
-		
+		if (!players.length) {
+			return;
+		}
+
 		const name = players[0].name;
 		const image = await this.canvas.topPlayer(name, 'PLAYER OF THE DAY', moment().format('DD/MM/YYYY'));
 		const attachment = new AttachmentBuilder(image, { name: `top-player-${name}.png` });
 		const message: BaseMessageOptions = {
 			content: `Congrats to **${name}** he/she is today's player of the day! 🥳`,
 			files: [attachment],
-			embeds: [this.createEmbed(players)!]
+			embeds: [this.createEmbed(players, TopPlayersPeriod.Today)!],
 		};
 
 		const channel = this.client.channels.cache.get(this.config.config.onlinePlayers.channelId) as TextChannel;
-        channel.send(message);
+		channel.send(message);
 	}
 
 	private async getTopPlayers(period: TopPlayersPeriod): Promise<TopPlayer[]> {
-		const params = new PlayerSessionParams({
+		this.params = new PlayerSessionParams({
 			scoreThreshold: this.config.config.topPlayers.scoreThreshold,
 			time: period,
 		});
 
 		return await (
-			await this.db.findTopPlayers(params)
+			await this.db.findTopPlayers(this.params)
 		).map(x => ({
 			name: x.name,
 			score: +x.totalScore,
@@ -75,21 +85,21 @@ export class TopPlayersService {
 		}));
 	}
 
-	private createEmbed(players: TopPlayer[], todayEmpty?: boolean, period?: TopPlayersPeriod): EmbedBuilder | undefined {
-		if (!players.length && todayEmpty) {
+	private createEmbed(players: TopPlayer[], period: TopPlayersPeriod, todayEmpty?: boolean): EmbedBuilder | undefined {
+		if (!players.length) {
 			return;
 		}
 
-        const subStr = period === TopPlayersPeriod.Yesterday ? 'yesterday' : 'the day';
-		const title = players.length && todayEmpty ? 'No top players for today, showing from yesterday' : `Top players of ${subStr}`;
+		const time = `${moment(this.params.startDate).format('DD/MM/YYYY')} - ${moment(this.params.endDate).format('DD/MM/YYYY')}`;
+		const title = todayEmpty ? 'No top players for today, showing from yesterday' : interpolate(this.messages[period].topPlayers, { time });
 
 		return new EmbedBuilder()
 			.setColor('#FFAB33')
-            .setAuthor({
+			.setAuthor({
 				name: title + ' 📊',
 				iconURL: this.config.config.acfun.emdbedIconUrl,
 			})
-            .setDescription(`ℹ️ Based on their \`total playtime\` with a \`score ${this.config.config.topPlayers.scoreThreshold}\` or higher throughout the day.`)
+			.setDescription(`ℹ️ Based on their \`total playtime\` with a \`score ${this.params.scoreThreshold}\` or higher throughout the ${this.messages[period].period}.`)
 			.addFields([
 				{ name: 'Name', value: `${this.namesWithBadges(players).join('\n')}`, inline: true },
 				{ name: 'Time', value: `${players.map(p => p.time).join('\n')}`, inline: true },
@@ -97,21 +107,21 @@ export class TopPlayersService {
 			]);
 	}
 
-    private namesWithBadges(players: TopPlayer[]): string[] {
-        const badges: NumericDictionary<Medals> = {
-           1: Medals.Top1,
-           2: Medals.Top2,
-           3: Medals.Top3
-         };
+	private namesWithBadges(players: TopPlayer[]): string[] {
+		const badges: NumericDictionary<Medals> = {
+			1: Medals.Top1,
+			2: Medals.Top2,
+			3: Medals.Top3,
+		};
 
-        return players.map((p, i) => {
-            const badge = badges[i + 1] || '';
-            let name = `${badge} ${p.name}`;
-            if (badge) {
-                name = `\`${name}\``;
-            }
+		return players.map((p, i) => {
+			const badge = badges[i + 1] || '';
+			let name = `${badge} ${p.name}`;
+			if (badge) {
+				name = `\`${name}\``;
+			}
 
-            return name;
-        });
-    }
+			return name;
+		});
+	}
 }

@@ -56,19 +56,32 @@ export class PlayerSessionParams {
                 current = moment().subtract(1, 'day');
             }
 
-            this.startDate = moment(current).startOf('day').toDate();
-            this.endDate = moment(current).endOf('day').toDate();
+            this.startDate = current.startOf('day').toDate();
+            this.endDate = current.endOf('day').toDate();
         } else if (value === TopPlayersPeriod.ThisWeek) {
-            this.startDate = moment(current).startOf('isoWeek').toDate();
-            this.endDate = moment(current).endOf('isoWeek').toDate();
+			current = moment().subtract(1, 'week');
+            this.startDate = current.startOf('isoWeek').toDate();
+            this.endDate = current.endOf('isoWeek').toDate();
         } else if (value === TopPlayersPeriod.ThisMonth) {
-            this.startDate = moment(current).startOf('month').toDate();
-            this.endDate = moment(current).endOf('month').toDate();
+			current = moment().subtract(1, 'month');
+            this.startDate = current.startOf('month').toDate();
+            this.endDate = current.endOf('month').toDate();
         }
     }
 
     constructor(data: { scoreThreshold: number, time: TopPlayersPeriod }) {
-        this.scoreThreshold = data.scoreThreshold;
+        this.scoreThreshold = this.getScoreThreshold(data.scoreThreshold, data.time);
         this.setDate = data.time;
     }
+
+	getScoreThreshold(scoreThreshold: number, time: TopPlayersPeriod): number {
+		let scoreMultiplier = 1;
+		if (time === TopPlayersPeriod.ThisWeek) {
+			scoreMultiplier = 7;
+		} else if (time === TopPlayersPeriod.ThisMonth) {
+			scoreMultiplier = moment().subtract(1, 'month').daysInMonth();
+		}
+	
+		return scoreThreshold * scoreMultiplier;
+	}
 }

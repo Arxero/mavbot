@@ -17,7 +17,6 @@ export class LoggerService extends FileHelper {
 	private logStream: WriteStream;
 	private logDirectory = 'logs';
 	private logFilePath = path.resolve(__dirname, '..', '..' ,this.logDirectory, this.getFileName());
-	private lastLogDate: Date;
 
 	constructor() {
         super();
@@ -34,8 +33,6 @@ export class LoggerService extends FileHelper {
         } else {
             console.log(message);
         }
-
-		this.lastLogDate = moment().toDate();
 	}
 
 	error(message: string, metadata: any = {}): void {
@@ -55,7 +52,9 @@ export class LoggerService extends FileHelper {
 	} 
 
 	private ensureStream(): void {
-		if (!this.logStream || this.lastLogDate && this.lastLogDate.getDay() !== moment().day()) {
+		const previousDay = moment().subtract(1, 'day').startOf('day');
+
+		if (!this.logStream || moment().isAfter(previousDay)) {
 			this.logStream = fs.createWriteStream(this.logFilePath, { flags: 'a' });
 		}
 	}

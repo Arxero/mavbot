@@ -59,12 +59,17 @@ export const commandsReg: Command[] = [
 	{
 		command: new SlashCommandBuilder()
 			.setName('top-players')
-			.setDescription('Returns top players of the day')
+			.setDescription('Returns top players of the day or in given a time period')
 			.addStringOption(o =>
 				o
 					.setName('time')
 					.setDescription('Top players in the given time period.')
-					.addChoices({ name: 'Today', value: TopPlayersPeriod.Today }, { name: 'Yesterday', value: TopPlayersPeriod.Yesterday })
+					.addChoices(
+						{ name: 'Today', value: TopPlayersPeriod.Today },
+						{ name: 'Yesterday', value: TopPlayersPeriod.Yesterday },
+						{ name: 'Weekly', value: TopPlayersPeriod.ThisWeek },
+						{ name: 'Monthly', value: TopPlayersPeriod.ThisMonth }
+					)
 			),
 		execute: async (interaction: CommandInteraction, injector: ReflectiveInjector): Promise<void> => {
 			const logger = injector?.get(LoggerService) as LoggerService;
@@ -77,7 +82,7 @@ export const commandsReg: Command[] = [
 				logger?.log(`Error while getting top players: ${error}`);
 			}
 		},
-	}
+	},
 ].map(command => {
 	commands.set(command.command.name, command);
 

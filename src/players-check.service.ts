@@ -125,11 +125,7 @@ export class PlayersCheckService {
 			if (activeSession && !namedPlayers.some(p => p.name === activeSession.name)) {
 				activeSession.left = moment().toDate();
 				activeSession.timePlayed = +(moment(activeSession.left).diff(activeSession.joined) / 1000).toFixed(0);
-				
-				const userLeftBeforeMapChange = activeSession.currentMapScore > 0 && activeSession.score === 0;
-				if (userLeftBeforeMapChange) {
-					activeSession.score = activeSession.currentMapScore;
-				}
+				activeSession.score += activeSession.currentMapScore;
 
 				await this.save();
 			}
