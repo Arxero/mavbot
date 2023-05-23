@@ -98,7 +98,7 @@ export class TopPlayersService {
 
 		const name = players[0].name;
 		const date = period === TopPlayersPeriod.Today ? moment().format('DD/MM/YYYY') :  this.twoTimes;
-		const image = await this.canvas.topPlayer(name, this.messages[period].winMessageTitle!, date);
+		const image = await this.canvas.topPlayer(name, this.messages[period].winMessageTitle!.toUpperCase(), date);
 		const attachment = new AttachmentBuilder(image, { name: `top-player-${name}.png` });
 		const message: BaseMessageOptions = {
 			content: interpolate(this.messages[period].winMessage!, { name }),

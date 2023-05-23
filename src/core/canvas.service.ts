@@ -19,7 +19,8 @@ export class CanvasService {
         context.fillText(name, canvas.width / 2.5, canvas.height / 1.5);
 
         context.font = this.getFont(16);
-        context.fillText(date, canvas.width - 90, canvas.height - 10);
+        const dateLength = context.measureText(date).width + 10;
+        context.fillText(date, canvas.width - dateLength, canvas.height - 10);
 
 		context.beginPath();
 		context.arc(canvas.width / 2 - 200, canvas.height / 2, 100, 0, Math.PI * 2, true);
