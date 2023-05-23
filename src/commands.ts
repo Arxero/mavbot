@@ -67,8 +67,10 @@ export const commandsReg: Command[] = [
 					.addChoices(
 						{ name: 'Today', value: TopPlayersPeriod.Today },
 						{ name: 'Yesterday', value: TopPlayersPeriod.Yesterday },
-						{ name: 'Weekly', value: TopPlayersPeriod.ThisWeek },
-						{ name: 'Monthly', value: TopPlayersPeriod.ThisMonth }
+						{ name: 'This Week', value: TopPlayersPeriod.ThisWeek },
+						{ name: 'Last Week', value: TopPlayersPeriod.LastWeek },
+						{ name: 'This Month', value: TopPlayersPeriod.ThisMonth },
+						{ name: 'Last Month', value: TopPlayersPeriod.LastMonth }
 					)
 			),
 		execute: async (interaction: CommandInteraction, injector: ReflectiveInjector): Promise<void> => {

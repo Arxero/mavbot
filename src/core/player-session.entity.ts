@@ -44,44 +44,60 @@ export class PlayerSessionEntity {
 export class PlayerSessionParams {
 	take = 10;
 	sortDirection = SortDirection.DESC;
-    scoreThreshold: number;
-    startDate: Date;
-    endDate: Date;
+	scoreThreshold: number;
+	startDate: Date;
+	endDate: Date;
 
-    private set setDate(value: TopPlayersPeriod) {
-        let current = moment();
+	private set setDate(value: TopPlayersPeriod) {
+		let current = moment();
 
-        if (value === TopPlayersPeriod.Today || value === TopPlayersPeriod.Yesterday) {
-            if (value === TopPlayersPeriod.Yesterday) {
-                current = moment().subtract(1, 'day');
-            }
+		switch (value) {
+			case TopPlayersPeriod.Today:
+				this.startDate = current.startOf('day').toDate();
+				this.endDate = current.endOf('day').toDate();
+				break;
+			case TopPlayersPeriod.Yesterday:
+				current = current.subtract(1, 'day');
+				this.startDate = current.startOf('day').toDate();
+				this.endDate = current.endOf('day').toDate();
+				break;
+			case TopPlayersPeriod.ThisWeek:
+				this.startDate = current.startOf('isoWeek').toDate();
+				this.endDate = current.endOf('isoWeek').toDate();
+				break;
+			case TopPlayersPeriod.LastWeek:
+				current = current.subtract(1, 'week');
+				this.startDate = current.startOf('isoWeek').toDate();
+				this.endDate = current.endOf('isoWeek').toDate();
+				break;
+			case TopPlayersPeriod.ThisMonth:
+				this.startDate = current.startOf('month').toDate();
+				this.endDate = current.endOf('month').toDate();
+				break;
+			case TopPlayersPeriod.LastMonth:
+				current = current.subtract(1, 'month');
+				this.startDate = current.startOf('month').toDate();
+				this.endDate = current.endOf('month').toDate();
+				break;
+		}
+	}
 
-            this.startDate = current.startOf('day').toDate();
-            this.endDate = current.endOf('day').toDate();
-        } else if (value === TopPlayersPeriod.ThisWeek) {
-			current = moment().subtract(1, 'week');
-            this.startDate = current.startOf('isoWeek').toDate();
-            this.endDate = current.endOf('isoWeek').toDate();
-        } else if (value === TopPlayersPeriod.ThisMonth) {
-			current = moment().subtract(1, 'month');
-            this.startDate = current.startOf('month').toDate();
-            this.endDate = current.endOf('month').toDate();
-        }
-    }
-
-    constructor(data: { scoreThreshold: number, time: TopPlayersPeriod }) {
-        this.scoreThreshold = this.getScoreThreshold(data.scoreThreshold, data.time);
-        this.setDate = data.time;
-    }
+	constructor(data: { scoreThreshold: number; time: TopPlayersPeriod }) {
+		this.scoreThreshold = this.getScoreThreshold(data.scoreThreshold, data.time);
+		this.setDate = data.time;
+	}
 
 	getScoreThreshold(scoreThreshold: number, time: TopPlayersPeriod): number {
 		let scoreMultiplier = 1;
-		if (time === TopPlayersPeriod.ThisWeek) {
+		
+		if (time === TopPlayersPeriod.ThisWeek || time === TopPlayersPeriod.LastWeek) {
 			scoreMultiplier = 7;
 		} else if (time === TopPlayersPeriod.ThisMonth) {
+			scoreMultiplier = moment().daysInMonth();
+		} else if (time === TopPlayersPeriod.LastMonth) {
 			scoreMultiplier = moment().subtract(1, 'month').daysInMonth();
 		}
-	
+
 		return scoreThreshold * scoreMultiplier;
 	}
 }

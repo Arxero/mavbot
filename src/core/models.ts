@@ -81,7 +81,9 @@ export enum TopPlayersPeriod {
     Today = 'day',
     Yesterday = 'yesterday',
     ThisWeek = 'week',
-    ThisMonth = 'month'
+    ThisMonth = 'month',
+	LastWeek = 'last_week',
+	LastMonth = 'last_month'
 }
 
 export enum Medals {

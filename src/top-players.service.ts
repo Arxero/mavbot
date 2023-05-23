@@ -10,8 +10,10 @@ export class TopPlayersService {
 	private messages: Record<TopPlayersPeriod, { fallback: string; topPlayers: string; period: string }> = {
 		[TopPlayersPeriod.Today]: { fallback: 'No Top Players for today', topPlayers: 'Top Players of the Day', period: 'day' },
 		[TopPlayersPeriod.Yesterday]: { fallback: 'No Top Players for yesterday', topPlayers: 'Top Players of Yesterday', period: 'day' },
-		[TopPlayersPeriod.ThisWeek]: { fallback: 'No Top Players for last week', topPlayers: 'Top Players of the Week ({{ time }})', period: 'week' },
-		[TopPlayersPeriod.ThisMonth]: { fallback: 'No Top Players for last month', topPlayers: 'Top Players of the Month ({{ time }})', period: 'month' },
+		[TopPlayersPeriod.ThisWeek]: { fallback: 'No Top Players for this week', topPlayers: 'Top Players of the Week', period: 'week' },
+		[TopPlayersPeriod.LastWeek]: { fallback: 'No Top Players for last week', topPlayers: 'Top Players of the Last Week ({{ time }})', period: 'last week' },
+		[TopPlayersPeriod.ThisMonth]: { fallback: 'No Top Players for this month', topPlayers: 'Top Players of the Month', period: 'month' },
+		[TopPlayersPeriod.LastMonth]: { fallback: 'No Top Players for last month', topPlayers: 'Top Players of the Last Month ({{ time }})', period: 'last month' },
 	};
 	
 	private params: PlayerSessionParams;
