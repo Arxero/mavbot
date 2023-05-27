@@ -66,3 +66,11 @@ export function interpolate(str: string, params: Dictionary<string | number>): s
 
 	return str;
 }
+
+export function secondsToHours(seconds: number): string {
+	const milliseconds = seconds * 1000;
+	const hours = Math.floor(moment.duration(milliseconds).asHours());
+	const minutesSeconds = moment.utc(milliseconds).format('mm:ss');
+
+	return `${hours}:${minutesSeconds}`;
+}

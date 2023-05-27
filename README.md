@@ -198,3 +198,23 @@ After that, check with
 
     fc-match Arial
 
+
+## PM2 notes
+### Start the process
+
+Navigate to the directory where your application is located and run the following command:
+
+    pm2 start npm --name "mavbot" -- start
+
+### List running pm2 processes
+
+    pm2 list
+
+### Stop a process
+
+    pm2 stop <app_name|app_id>
+
+### Restart a process: 
+
+    pm2 restart <app_name|app_id>
+

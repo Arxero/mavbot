@@ -3,7 +3,7 @@ import { Injectable } from 'injection-js';
 import { NumericDictionary } from 'lodash';
 import moment from 'moment';
 import { scheduleJob } from 'node-schedule';
-import { CanvasService, ConfigService, DbService, interpolate, Medals, PlayerSessionParams, TopPlayer, TopPlayersPeriod } from './core';
+import { CanvasService, ConfigService, DbService, interpolate, Medals, PlayerSessionParams, secondsToHours, TopPlayer, TopPlayersPeriod } from './core';
 
 @Injectable()
 export class TopPlayersService {
@@ -121,7 +121,7 @@ export class TopPlayersService {
 		).map(x => ({
 			name: x.name,
 			score: +x.totalScore,
-			time: moment.utc(x.totalTime * 1000).format('H:mm:ss'),
+			time: secondsToHours(x.totalTime),
 		}));
 	}
 
