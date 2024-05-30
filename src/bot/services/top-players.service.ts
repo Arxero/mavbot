@@ -1,9 +1,14 @@
+import { Injectable } from '@nestjs/common';
 import { AttachmentBuilder, BaseMessageOptions, Client, CommandInteraction, EmbedBuilder, TextChannel } from 'discord.js';
-import { Injectable } from 'injection-js';
 import { NumericDictionary } from 'lodash';
 import moment from 'moment';
 import { scheduleJob } from 'node-schedule';
-import { CanvasService, ConfigService, DbService, interpolate, Medals, PlayerSessionParams, secondsToHours, TopPlayer, TopPlayersPeriod } from './core';
+import { Medals, TopPlayer, TopPlayersPeriod } from '../models';
+import { PlayerSessionParams } from '../player-session.entity';
+import { BotConfigService } from './bot-config.service';
+import { DbService } from './db.service';
+import { CanvasService } from './canvas.service';
+import { interpolate, secondsToHours } from '../../utils';
 
 @Injectable()
 export class TopPlayersService {
@@ -49,7 +54,12 @@ export class TopPlayersService {
 		return `${moment(this.params.startDate).format('DD/MM/YYYY')} - ${moment(this.params.endDate).format('DD/MM/YYYY')}`;
 	}
 
-	constructor(private config: ConfigService, private db: DbService, private client: Client, private canvas: CanvasService) {}
+	constructor(
+		private config: BotConfigService,
+		private db: DbService,
+		private client: Client,
+		private canvas: CanvasService,
+	) {}
 
 	async showTopPlayers(period: TopPlayersPeriod, interaction: CommandInteraction): Promise<void> {
 		if (!this.config.config.topPlayers.isEnabled) {
@@ -97,7 +107,7 @@ export class TopPlayersService {
 		}
 
 		const name = players[0].name;
-		const date = period === TopPlayersPeriod.Today ? moment().format('DD/MM/YYYY') :  this.twoTimes;
+		const date = period === TopPlayersPeriod.Today ? moment().format('DD/MM/YYYY') : this.twoTimes;
 		const image = await this.canvas.topPlayer(name, this.messages[period].winMessageTitle!.toUpperCase(), date);
 		const attachment = new AttachmentBuilder(image, { name: `top-player-${name}.png` });
 		const message: BaseMessageOptions = {
@@ -116,9 +126,7 @@ export class TopPlayersService {
 			time: period,
 		});
 
-		return await (
-			await this.db.findTopPlayers(this.params)
-		).map(x => ({
+		return (await this.db.findTopPlayers(this.params)).map(x => ({
 			name: x.name,
 			score: +x.totalScore,
 			time: secondsToHours(x.totalTime),
@@ -130,7 +138,9 @@ export class TopPlayersService {
 			return;
 		}
 
-		const title = todayEmpty ? 'No top players for today, showing from yesterday' : interpolate(this.messages[period].topPlayers, { time: this.twoTimes });
+		const title = todayEmpty
+			? 'No top players for today, showing from yesterday'
+			: interpolate(this.messages[period].topPlayers, { time: this.twoTimes });
 
 		return new EmbedBuilder()
 			.setColor('#FFAB33')
@@ -139,7 +149,7 @@ export class TopPlayersService {
 				iconURL: this.config.config.acfun.emdbedIconUrl,
 			})
 			.setDescription(
-				`ℹ️ Based on their \`total playtime\` with a \`score ${this.params.scoreThreshold}\` or higher throughout the ${this.messages[period].period}.`
+				`ℹ️ Based on their \`total playtime\` with a \`score ${this.params.scoreThreshold}\` or higher throughout the ${this.messages[period].period}.`,
 			)
 			.addFields([
 				{ name: 'Name', value: `${this.namesWithBadges(players).join('\n')}`, inline: true },

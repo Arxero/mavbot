@@ -1,5 +1,5 @@
 import { ColorResolvable } from 'discord.js';
-import { Player as GamedigPlayer, Type } from 'gamedig';
+import { Player as GamedigPlayer } from 'gamedig';
 import { FindOperator } from 'typeorm';
 import { PlayerSessionEntity } from './player-session.entity';
 
@@ -11,7 +11,7 @@ interface BotConfig {
 }
 
 interface AcConfig {
-	gameType: Type;
+	gameType: string;
 	host: string;
 	port?: number;
 	maxAttempts?: number;
@@ -36,6 +36,13 @@ interface OnlinePlayersConfig {
 interface TopPlayersConfig {
 	isEnabled: boolean;
 	scoreThreshold: number;
+}
+
+export interface BotSecrets {
+	token: string;
+	appId: string;
+	serverId: string;
+	acConfig: string;
 }
 
 export interface Config {
@@ -78,16 +85,16 @@ export interface TopPlayer {
 }
 
 export enum TopPlayersPeriod {
-    Today = 'day',
-    Yesterday = 'yesterday',
-    ThisWeek = 'week',
-    ThisMonth = 'month',
+	Today = 'day',
+	Yesterday = 'yesterday',
+	ThisWeek = 'week',
+	ThisMonth = 'month',
 	LastWeek = 'last_week',
-	LastMonth = 'last_month'
+	LastMonth = 'last_month',
 }
 
 export enum Medals {
 	Top1 = '🥇',
 	Top2 = '🥈',
-	Top3 = '🥉'
+	Top3 = '🥉',
 }

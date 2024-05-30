@@ -89,7 +89,7 @@ export class PlayerSessionParams {
 
 	getScoreThreshold(scoreThreshold: number, time: TopPlayersPeriod): number {
 		let scoreMultiplier = 1;
-		
+
 		if (time === TopPlayersPeriod.ThisWeek || time === TopPlayersPeriod.LastWeek) {
 			scoreMultiplier = 7;
 		} else if (time === TopPlayersPeriod.ThisMonth) {

@@ -1,16 +1,25 @@
-import axios from 'axios';
+import { Injectable } from '@nestjs/common';
+import { BotSecrets, Config, ExternalConfig } from '../models';
+import { LoggerService } from 'src/logger.service';
 import { Colors, IntentsBitField } from 'discord.js';
-import { Injectable } from 'injection-js';
-import { delay } from './utils';
-import { LoggerService } from './logger.service';
-import { Config, ExternalConfig } from './models';
+import { delay } from 'src/utils';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class ConfigService {
+export class BotConfigService {
 	config: Config;
+	private env: BotSecrets;
 
-	constructor(private logger: LoggerService) {
-		if (!process.env.BOT_TOKEN || !process.env.APPLICATION_ID || !process.env.SERVER_ID) {
+	constructor(
+		private logger: LoggerService,
+		private http: HttpService,
+		private configService: ConfigService,
+	) {
+		this.env = this.configService.get<BotSecrets>('bot')!;
+
+		if (!this.env.token || !this.env.appId || !this.env.serverId) {
 			this.logger.error('Essential secrets were not supplied. Please fill them to continue! Exiting...');
 			throw new Error();
 		}
@@ -18,13 +27,13 @@ export class ConfigService {
 		this.config = {
 			configRefreshTime: 300,
 			bot: {
-				token: process.env.BOT_TOKEN,
-				clientId: process.env.APPLICATION_ID,
-				guildId: process.env.SERVER_ID,
+				token: this.env.token,
+				clientId: this.env.appId,
+				guildId: this.env.serverId,
 				intents: [IntentsBitField.Flags.Guilds, IntentsBitField.Flags.GuildMembers],
 			},
 			acfun: {
-				gameType: 'cs16',
+				gameType: 'counterstrike16',
 				host: 'ac.gamewaver.com',
 				port: 27017,
 				maxAttempts: 1,
@@ -44,19 +53,19 @@ export class ConfigService {
 			topPlayers: {
 				isEnabled: true,
 				scoreThreshold: 5,
-			}
+			},
 		};
 	}
 
 	async loadConfigs(): Promise<void> {
-		if (!process.env.AC_CONFIG) {
+		if (!this.env.acConfig) {
 			this.logger.log('No AC_Config link was provided. Using defaults!');
 
 			return;
 		}
 
 		try {
-			const result = await (await axios.get<ExternalConfig>(process.env.AC_CONFIG)).data;
+			const result = (await firstValueFrom(this.http.get<ExternalConfig>(this.env.acConfig))).data;
 			this.config = { ...this.config, ...result };
 			this.logger.log('Configs loaded successfully.');
 		} catch (error) {

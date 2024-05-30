@@ -1,9 +1,13 @@
+import { Injectable } from '@nestjs/common';
 import { BaseMessageOptions, Client, EmbedBuilder, TextChannel } from 'discord.js';
-import { query, QueryResult } from 'gamedig';
-import { Injectable } from 'injection-js';
+import { GameDig, QueryResult } from 'gamedig';
 import { Dictionary } from 'lodash';
 import moment from 'moment';
-import { PlayerSession, LoggerService, ConfigService, interpolate, Player, delay, DbService } from './core';
+import { Player, PlayerSession } from '../models';
+import { DbService } from './db.service';
+import { BotConfigService } from './bot-config.service';
+import { LoggerService } from '../../logger.service';
+import { delay, interpolate } from '../../utils';
 
 @Injectable()
 export class PlayersCheckService {
@@ -11,7 +15,12 @@ export class PlayersCheckService {
 	private playerSessions: Dictionary<PlayerSession[]> = {};
 	private checkDate?: Date;
 
-	constructor(private logger: LoggerService, private config: ConfigService, private client: Client, private db: DbService) {}
+	constructor(
+		private logger: LoggerService,
+		private config: BotConfigService,
+		private client: Client,
+		private db: DbService,
+	) {}
 
 	async startPlayersCheck(): Promise<void> {
 		if (!this.config.config.onlinePlayers.isEnabled) {
@@ -20,13 +29,13 @@ export class PlayersCheckService {
 
 		try {
 			const channel = this.client.channels.cache.get(this.config.config.onlinePlayers.channelId) as TextChannel;
-			const serverInfo = await query({
+			const serverInfo = await GameDig.query({
 				type: this.config.config.acfun.gameType,
 				host: this.config.config.acfun.host,
 				port: this.config.config.acfun.port,
-				maxAttempts: this.config.config.acfun.maxAttempts,
+				maxRetries: this.config.config.acfun.maxAttempts,
 			});
-			this.logger.log(`Server scanned with players: ${JSON.stringify(serverInfo.players)}`,);
+			this.logger.log(`Server scanned with players: ${JSON.stringify(serverInfo.players)}`);
 			const showOnlinePlayers = serverInfo.players.length >= this.config.config.onlinePlayers.playersTreshhold;
 			const mapChanged = this.currentMap !== serverInfo.map;
 
@@ -45,7 +54,7 @@ export class PlayersCheckService {
 			this.logger.error(`Error while fetching server data for ${PlayersCheckService.name}: ${error}`);
 		}
 
-		await delay(this.config.config.onlinePlayers.checkInterval, this.startPlayersCheck.bind(this, this.client));
+		await delay(this.config.config.onlinePlayers.checkInterval, this.startPlayersCheck.bind(this));
 	}
 
 	private getMapMessage(data: QueryResult): BaseMessageOptions {

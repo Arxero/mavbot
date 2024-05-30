@@ -1,28 +1,16 @@
 import path from 'path';
 import fs from 'fs';
-import { APIEmbedField, Client, EmbedBuilder, Events } from 'discord.js';
-import { LoggerService } from './logger.service';
+import { APIEmbedField, EmbedBuilder } from 'discord.js';
 import moment from 'moment';
 import { Dictionary } from 'lodash';
-import { Player } from './models';
+import { Player } from './bot/models';
 
-export abstract class FileHelper {
-	ensureDirectory(directory: string, ...parents: string[]): void {
-		const directoryPath = path.resolve(__dirname, ...parents, directory);
+export function ensureDirectory(directory: string, ...parents: string[]): void {
+	const directoryPath = path.resolve(__dirname, ...parents, directory);
 
-		if (!fs.existsSync(directoryPath)) {
-			fs.mkdirSync(directoryPath);
-		}
+	if (!fs.existsSync(directoryPath)) {
+		fs.mkdirSync(directoryPath);
 	}
-}
-
-export function clientReady(client: Client, logger: LoggerService): Promise<void> {
-	return new Promise(resolve => {
-		client.on(Events.ClientReady, () => {
-			logger.log(`Logged in as ${client.user?.tag}`);
-			resolve();
-		});
-	});
 }
 
 export async function delay(ms: number, callback?: () => void): Promise<void> {
@@ -32,7 +20,7 @@ export async function delay(ms: number, callback?: () => void): Promise<void> {
 				callback();
 			}
 			resolve();
-		}, ms * 1000)
+		}, ms * 1000),
 	);
 }
 
