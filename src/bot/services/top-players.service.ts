@@ -62,7 +62,7 @@ export class TopPlayersService {
 	) {}
 
 	async showTopPlayers(period: TopPlayersPeriod, interaction: CommandInteraction): Promise<void> {
-		if (!this.config.config.topPlayers.isEnabled) {
+		if (!this.config.topPlayers.isEnabled) {
 			return;
 		}
 
@@ -91,7 +91,7 @@ export class TopPlayersService {
 	}
 
 	private async showTopPlayersDaily(): Promise<void> {
-		if (!this.config.config.topPlayers.isEnabled) {
+		if (!this.config.topPlayers.isEnabled) {
 			return;
 		}
 
@@ -116,13 +116,13 @@ export class TopPlayersService {
 			embeds: [this.createEmbed(players, period)!],
 		};
 
-		const channel = this.client.channels.cache.get(this.config.config.onlinePlayers.channelId) as TextChannel;
+		const channel = this.client.channels.cache.get(this.config.onlinePlayers.channelId) as TextChannel;
 		channel.send(message);
 	}
 
 	private async getTopPlayers(period: TopPlayersPeriod): Promise<TopPlayer[]> {
 		this.params = new PlayerSessionParams({
-			scoreThreshold: this.config.config.topPlayers.scoreThreshold,
+			scoreThreshold: this.config.topPlayers.scoreThreshold,
 			time: period,
 		});
 
@@ -146,7 +146,7 @@ export class TopPlayersService {
 			.setColor('#FFAB33')
 			.setAuthor({
 				name: title + ' 📊',
-				iconURL: this.config.config.acfun.emdbedIconUrl,
+				iconURL: this.config.acfun.emdbedIconUrl,
 			})
 			.setDescription(
 				`ℹ️ Based on their \`total playtime\` with a \`score ${this.params.scoreThreshold}\` or higher throughout the ${this.messages[period].period}.`,

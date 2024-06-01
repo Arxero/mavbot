@@ -3,54 +3,40 @@ import { Player as GamedigPlayer } from 'gamedig';
 import { FindOperator } from 'typeorm';
 import { PlayerSessionEntity } from './player-session.entity';
 
-interface BotConfig {
-	token: string;
-	clientId: string;
-	guildId: string;
-	intents: number[];
-}
-
-interface AcConfig {
-	gameType: string;
-	host: string;
-	port?: number;
-	maxAttempts?: number;
-	embedColor: ColorResolvable;
-	embedIP?: string;
-	emdbedIconUrl?: string;
-	embedFile?: string;
-}
-
-interface OnlinePlayersConfig {
-	checkInterval: number;
-	playersTreshhold: number;
-	channelId: string;
-	embedMapColor: ColorResolvable;
-	embedPlayersColor: ColorResolvable;
-	mapChangeText: string;
-	playersCheckText: string;
-	playersCheckFieldText: string;
-	isEnabled: boolean;
-}
-
-interface TopPlayersConfig {
-	isEnabled: boolean;
-	scoreThreshold: number;
-}
-
 export interface BotSecrets {
 	token: string;
 	appId: string;
 	serverId: string;
 	acConfig: string;
+	intents: number[];
 }
-
 export interface Config {
 	configRefreshTime: number;
-	bot: BotConfig;
-	acfun: AcConfig;
-	onlinePlayers: OnlinePlayersConfig;
-	topPlayers: TopPlayersConfig;
+	acfun: {
+		gameType: string;
+		host: string;
+		port?: number;
+		maxAttempts?: number;
+		embedColor: ColorResolvable;
+		embedIP?: string;
+		emdbedIconUrl?: string;
+		embedFile?: string;
+	};
+	onlinePlayers: {
+		checkInterval: number;
+		playersTreshhold: number;
+		channelId: string;
+		embedMapColor: ColorResolvable;
+		embedPlayersColor: ColorResolvable;
+		mapChangeText: string;
+		playersCheckText: string;
+		playersCheckFieldText: string;
+		isEnabled: boolean;
+	};
+	topPlayers: {
+		isEnabled: boolean;
+		scoreThreshold: number;
+	};
 }
 
 export interface PlayerSession {

@@ -23,20 +23,20 @@ export class PlayersCheckService {
 	) {}
 
 	async startPlayersCheck(): Promise<void> {
-		if (!this.config.config.onlinePlayers.isEnabled) {
+		if (!this.config.onlinePlayers.isEnabled) {
 			return;
 		}
 
 		try {
-			const channel = this.client.channels.cache.get(this.config.config.onlinePlayers.channelId) as TextChannel;
+			const channel = this.client.channels.cache.get(this.config.onlinePlayers.channelId) as TextChannel;
 			const serverInfo = await GameDig.query({
-				type: this.config.config.acfun.gameType,
-				host: this.config.config.acfun.host,
-				port: this.config.config.acfun.port,
-				maxRetries: this.config.config.acfun.maxAttempts,
+				type: this.config.acfun.gameType,
+				host: this.config.acfun.host,
+				port: this.config.acfun.port,
+				maxRetries: this.config.acfun.maxAttempts,
 			});
 			this.logger.log(`Server scanned with players: ${JSON.stringify(serverInfo.players)}`);
-			const showOnlinePlayers = serverInfo.players.length >= this.config.config.onlinePlayers.playersTreshhold;
+			const showOnlinePlayers = serverInfo.players.length >= this.config.onlinePlayers.playersTreshhold;
 			const mapChanged = this.currentMap !== serverInfo.map;
 
 			if (showOnlinePlayers) {
@@ -54,14 +54,14 @@ export class PlayersCheckService {
 			this.logger.error(`Error while fetching server data for ${PlayersCheckService.name}: ${error}`);
 		}
 
-		await delay(this.config.config.onlinePlayers.checkInterval, this.startPlayersCheck.bind(this));
+		await delay(this.config.onlinePlayers.checkInterval, this.startPlayersCheck.bind(this));
 	}
 
 	private getMapMessage(data: QueryResult): BaseMessageOptions {
 		const embed = new EmbedBuilder()
-			.setColor(this.config.config.onlinePlayers.embedMapColor)
-			.setAuthor({ name: data.map, iconURL: this.config.config.acfun.emdbedIconUrl })
-			.setFooter({ text: this.config.config.onlinePlayers.mapChangeText });
+			.setColor(this.config.onlinePlayers.embedMapColor)
+			.setAuthor({ name: data.map, iconURL: this.config.acfun.emdbedIconUrl })
+			.setFooter({ text: this.config.onlinePlayers.mapChangeText });
 
 		return {
 			embeds: [embed],
@@ -70,14 +70,14 @@ export class PlayersCheckService {
 
 	private getPlayersMessage(data: QueryResult): BaseMessageOptions {
 		const embed = new EmbedBuilder()
-			.setColor(this.config.config.onlinePlayers.embedPlayersColor)
+			.setColor(this.config.onlinePlayers.embedPlayersColor)
 			.setAuthor({
-				name: `${interpolate(this.config.config.onlinePlayers.playersCheckText, { playersCount: data.players.length })}`,
-				iconURL: this.config.config.acfun.emdbedIconUrl,
+				name: `${interpolate(this.config.onlinePlayers.playersCheckText, { playersCount: data.players.length })}`,
+				iconURL: this.config.acfun.emdbedIconUrl,
 			})
 			.addFields([
 				{
-					name: this.config.config.onlinePlayers.playersCheckFieldText,
+					name: this.config.onlinePlayers.playersCheckFieldText,
 					value: `${data.players.map(p => p.name || 'unknown').join('\n')}`,
 					inline: true,
 				},
