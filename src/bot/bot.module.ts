@@ -6,12 +6,15 @@ import { LoggerService } from './../logger.service';
 import { PlayerSessionEntity } from './player-session.entity';
 import { Client, Events } from 'discord.js';
 import {
+	AcfunCommandService,
 	BotConfigService,
 	CanvasService,
 	CommandsService,
 	DbService,
 	ImgDownloaderService,
+	PingCommandService,
 	PlayersCheckService,
+	TopPlayersCommandService,
 	TopPlayersService,
 } from './services';
 
@@ -32,6 +35,9 @@ import {
 		PlayersCheckService,
 		TopPlayersService,
 		CommandsService,
+		AcfunCommandService,
+		PingCommandService,
+		TopPlayersCommandService,
 	],
 })
 export class BotModule implements OnModuleInit {
@@ -39,16 +45,13 @@ export class BotModule implements OnModuleInit {
 		private config: BotConfigService,
 		private client: Client,
 		private logger: LoggerService,
-		private playersCheck: PlayersCheckService,
-		private topPlayers: TopPlayersService,
 	) {}
 
 	async onModuleInit(): Promise<void> {
 		this.client.login(this.config.bot.token);
+
 		this.client.on(Events.ClientReady, () => {
 			this.logger.log(`Logged in as ${this.client.user?.tag}`);
 		});
-		this.playersCheck.startPlayersCheck();
-		this.topPlayers.startDailyJob();
 	}
 }

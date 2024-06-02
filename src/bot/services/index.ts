@@ -4,4 +4,7 @@ export * from './db.service';
 export * from './img-downloader.service';
 export * from './players-check.service';
 export * from './top-players.service';
-export * from './commands.service';
+export * from './commands/commands.service';
+export * from './commands/acfun-command.service';
+export * from './commands/ping-command.service';
+export * from './commands/top-players-command.service';

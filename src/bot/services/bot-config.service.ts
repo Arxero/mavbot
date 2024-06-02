@@ -9,7 +9,7 @@ import { delay } from 'src/utils';
 
 @Injectable()
 export class BotConfigService {
-	private config: Config = {} as Config;
+	private config: Config;
 
 	get bot(): BotSecrets {
 		const { token, appId, serverId, acConfig } = this.configService.get<BotSecrets>('bot') ?? {};

@@ -59,7 +59,9 @@ export class TopPlayersService {
 		private db: DbService,
 		private client: Client,
 		private canvas: CanvasService,
-	) {}
+	) {
+		this.startDailyJob();
+	}
 
 	async showTopPlayers(period: TopPlayersPeriod, interaction: CommandInteraction): Promise<void> {
 		if (!this.config.topPlayers.isEnabled) {
@@ -86,7 +88,7 @@ export class TopPlayersService {
 		}
 	}
 
-	startDailyJob(): void {
+	private startDailyJob(): void {
 		scheduleJob({ hour: 23, minute: 59, tz: 'Europe/Sofia' }, this.showTopPlayersDaily.bind(this));
 	}
 

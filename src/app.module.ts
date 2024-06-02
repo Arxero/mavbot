@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { BotModule } from './bot/bot.module';
 import config from '../config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -31,7 +29,7 @@ import { PlayerSessionEntity } from './bot/player-session.entity';
 		BotModule,
 		HttpModule,
 	],
-	controllers: [AppController],
-	providers: [AppService, LoggerService],
+	controllers: [],
+	providers: [LoggerService],
 })
 export class AppModule {}

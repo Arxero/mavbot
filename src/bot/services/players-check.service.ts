@@ -20,10 +20,12 @@ export class PlayersCheckService {
 		private config: BotConfigService,
 		private client: Client,
 		private db: DbService,
-	) {}
+	) {
+		this.startPlayersCheck();
+	}
 
-	async startPlayersCheck(): Promise<void> {
-		if (!this.config.onlinePlayers.isEnabled) {
+	private async startPlayersCheck(): Promise<void> {
+		if (!this.config.onlinePlayers?.isEnabled) {
 			return;
 		}
 

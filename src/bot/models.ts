@@ -1,4 +1,4 @@
-import { ColorResolvable } from 'discord.js';
+import { ColorResolvable, CommandInteraction, InteractionResponse, Message, SlashCommandBuilder, SlashCommandOptionsOnlyBuilder } from 'discord.js';
 import { Player as GamedigPlayer } from 'gamedig';
 import { FindOperator } from 'typeorm';
 import { PlayerSessionEntity } from './player-session.entity';
@@ -83,4 +83,12 @@ export enum Medals {
 	Top1 = '🥇',
 	Top2 = '🥈',
 	Top3 = '🥉',
+}
+
+export type CommandType = SlashCommandBuilder | Omit<SlashCommandBuilder, 'addSubcommand' | 'addSubcommandGroup'> | SlashCommandOptionsOnlyBuilder;
+export type CommandReturn = Promise<InteractionResponse | Message | void>;
+
+export interface Command {
+	command: CommandType;
+	execute(interaction: CommandInteraction): CommandReturn;
 }
