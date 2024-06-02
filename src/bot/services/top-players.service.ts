@@ -29,7 +29,7 @@ export class TopPlayersService {
 			topPlayers: 'Top Players of the Week',
 			period: 'week',
 			winMessageTitle: 'Player of the Week',
-			winMessage: "Congrats to **{{ name }}** he/she is this week's player of the week! 🥳",
+			winMessage: "Congrats to **{{ name }}** he/she is this week's player of the week! 🥳 cc:<@153158947581198337>",
 		},
 		[TopPlayersPeriod.LastWeek]: {
 			fallback: 'No Top Players for last week',
