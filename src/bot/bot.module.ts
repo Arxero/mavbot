@@ -1,10 +1,10 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { LoggerService } from './../logger.service';
 import { PlayerSessionEntity } from './player-session.entity';
-import { Client, Events } from 'discord.js';
+import { Client } from 'discord.js';
 import {
 	AcfunCommandService,
 	BotConfigService,
@@ -17,6 +17,7 @@ import {
 	TopPlayersCommandService,
 	TopPlayersService,
 } from './services';
+import { clientReady } from 'src/utils';
 
 @Module({
 	imports: [ConfigModule.forRoot(), HttpModule, TypeOrmModule.forFeature([PlayerSessionEntity])],
@@ -29,8 +30,14 @@ import {
 		DbService,
 		{
 			provide: Client,
-			useFactory: (config: BotConfigService): Client => new Client({ intents: config.bot.intents }),
-			inject: [BotConfigService],
+			useFactory: async (config: BotConfigService, logger: LoggerService): Promise<Client> => {
+				const client = new Client({ intents: config.bot.intents });
+				client.login(config.bot.token);
+				await clientReady(client, logger);
+
+				return client;
+			},
+			inject: [BotConfigService, LoggerService],
 		},
 		PlayersCheckService,
 		TopPlayersService,
@@ -40,18 +47,4 @@ import {
 		TopPlayersCommandService,
 	],
 })
-export class BotModule implements OnModuleInit {
-	constructor(
-		private config: BotConfigService,
-		private client: Client,
-		private logger: LoggerService,
-	) {}
-
-	async onModuleInit(): Promise<void> {
-		this.client.login(this.config.bot.token);
-
-		this.client.on(Events.ClientReady, () => {
-			this.logger.log(`Logged in as ${this.client.user?.tag}`);
-		});
-	}
-}
+export class BotModule {}

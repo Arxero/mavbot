@@ -1,9 +1,10 @@
 import path from 'path';
 import fs from 'fs';
-import { APIEmbedField, EmbedBuilder } from 'discord.js';
+import { APIEmbedField, Client, EmbedBuilder, Events } from 'discord.js';
 import moment from 'moment';
 import { Dictionary } from 'lodash';
 import { Player } from './bot/models';
+import { LoggerService } from './logger.service';
 
 export function ensureDirectory(directory: string, ...parents: string[]): void {
 	const directoryPath = path.resolve(__dirname, ...parents, directory);
@@ -11,6 +12,15 @@ export function ensureDirectory(directory: string, ...parents: string[]): void {
 	if (!fs.existsSync(directoryPath)) {
 		fs.mkdirSync(directoryPath);
 	}
+}
+
+export function clientReady(client: Client, logger: LoggerService): Promise<void> {
+	return new Promise(resolve => {
+		client.on(Events.ClientReady, () => {
+			logger.log(`Logged in as ${client.user?.tag}`);
+			resolve();
+		});
+	});
 }
 
 export async function delay(ms: number, callback?: () => void): Promise<void> {
