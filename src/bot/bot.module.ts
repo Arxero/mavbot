@@ -1,5 +1,5 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 import { LoggerService } from './../logger.service';
@@ -47,4 +47,14 @@ import { clientReady } from 'src/utils';
 		TopPlayersCommandService,
 	],
 })
-export class BotModule {}
+export class BotModule implements OnModuleInit {
+	constructor(
+		private config: BotConfigService,
+		private playersCheck: PlayersCheckService,
+	) {}
+
+	async onModuleInit(): Promise<void> {
+		await this.config.loadConfigs();
+		this.playersCheck.startPlayersCheck();
+	}
+}

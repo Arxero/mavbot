@@ -38,9 +38,7 @@ export class BotConfigService {
 		private logger: LoggerService,
 		private http: HttpService,
 		private configService: ConfigService,
-	) {
-		this.loadConfigs();
-	}
+	) {}
 
 	async loadConfigs(): Promise<void> {
 		try {
@@ -49,7 +47,11 @@ export class BotConfigService {
 		} catch (error) {
 			this.logger.error(`Loading settings has failed with Error: ${error}`);
 		} finally {
-			await delay(this.config.configRefreshTime, this.loadConfigs.bind(this));
+			this.scheduleNextLoad();
 		}
+	}
+
+	private async scheduleNextLoad(): Promise<void> {
+		await delay(this.config.configRefreshTime, this.loadConfigs.bind(this));
 	}
 }
