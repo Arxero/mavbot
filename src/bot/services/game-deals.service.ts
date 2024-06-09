@@ -91,7 +91,9 @@ export class GameDealsService {
 		if (interaction) {
 			interaction.reply(message);
 
-			return;
+			if (interaction.channelId === this.config.gameDeals.channelId) {
+				return;
+			}
 		}
 
 		const channel = this.client.channels.cache.get(this.config.gameDeals.channelId) as TextChannel;
