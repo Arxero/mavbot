@@ -85,12 +85,7 @@ export class GameDealsService {
 
 		const message: BaseMessageOptions = {
 			embeds: deals.map(d => this.createEmbed(d)),
-			files: [
-				new AttachmentBuilder(this.getImagePath('reddit_logo')),
-				new AttachmentBuilder(this.getImagePath('epic_games_logo')),
-				new AttachmentBuilder(this.getImagePath('steam_logo')),
-				new AttachmentBuilder(this.getImagePath('free')),
-			],
+			files: this.getFiles(deals),
 		};
 
 		if (interaction) {
@@ -141,5 +136,18 @@ export class GameDealsService {
 		};
 
 		return str.replace(new RegExp('&[a-zA-Z0-9#]+;', 'g'), match => entities[match] || match);
+	}
+
+	private getFiles(deals: GameDealEntity[]): AttachmentBuilder[] {
+		const files = [new AttachmentBuilder(this.getImagePath('reddit_logo')), new AttachmentBuilder(this.getImagePath('free'))];
+
+		if (deals.some(d => d.type === VendorType.Steam)) {
+			files.push(new AttachmentBuilder(this.getImagePath('steam_logo')));
+		}
+		if (deals.some(d => d.type === VendorType.EpicGames)) {
+			files.push(new AttachmentBuilder(this.getImagePath('epic_games_logo')));
+		}
+
+		return files;
 	}
 }
