@@ -6,6 +6,7 @@ import { Command } from '../../models';
 import { AcfunCommandService } from './acfun-command.service';
 import { PingCommandService } from './ping-command.service';
 import { TopPlayersCommandService } from './top-players-command.service';
+import { GameDealsCommandService } from './game-deals-command.service';
 
 @Injectable()
 export class CommandsService {
@@ -19,8 +20,9 @@ export class CommandsService {
 		private acfunCommand: AcfunCommandService,
 		private pingCommand: PingCommandService,
 		private topPlayersCommand: TopPlayersCommandService,
+		private gameDealsCommand: GameDealsCommandService,
 	) {
-		[this.acfunCommand, this.pingCommand, this.topPlayersCommand].forEach(c => this.commands.set(c.command.name, c));
+		[this.acfunCommand, this.pingCommand, this.topPlayersCommand, this.gameDealsCommand].forEach(c => this.commands.set(c.command.name, c));
 		this.registerCommands();
 	}
 

@@ -4,7 +4,7 @@ import { GameDig, QueryResult } from 'gamedig';
 import { Dictionary } from 'lodash';
 import moment from 'moment';
 import { Player, PlayerSession } from '../models';
-import { DbService } from './db.service';
+import { TopPlayersDbService } from './top-players-db.service';
 import { BotConfigService } from './bot-config.service';
 import { LoggerService } from '../../logger.service';
 import { delay, interpolate } from '../../utils';
@@ -19,10 +19,12 @@ export class PlayersCheckService {
 		private logger: LoggerService,
 		private config: BotConfigService,
 		private client: Client,
-		private db: DbService,
-	) {}
+		private db: TopPlayersDbService,
+	) {
+		this.startPlayersCheck();
+	}
 
-	async startPlayersCheck(): Promise<void> {
+	private async startPlayersCheck(): Promise<void> {
 		if (!this.config.onlinePlayers.isEnabled) {
 			return;
 		}

@@ -1,7 +1,7 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios';
+import { HttpModule, HttpService } from '@nestjs/axios';
 import { LoggerService } from './../logger.service';
 import { PlayerSessionEntity } from './player-session.entity';
 import { Client } from 'discord.js';
@@ -10,24 +10,37 @@ import {
 	BotConfigService,
 	CanvasService,
 	CommandsService,
-	DbService,
+	TopPlayersDbService,
+	GameDealsDbService,
+	GameDealsService,
 	ImgDownloaderService,
 	PingCommandService,
 	PlayersCheckService,
 	TopPlayersCommandService,
 	TopPlayersService,
+	GameDealsCommandService,
 } from './services';
 import { clientReady } from 'src/utils';
+import { GameDealEntity } from './game-deal.entity';
 
 @Module({
-	imports: [ConfigModule.forRoot(), HttpModule, TypeOrmModule.forFeature([PlayerSessionEntity])],
+	imports: [ConfigModule.forRoot(), HttpModule, TypeOrmModule.forFeature([PlayerSessionEntity, GameDealEntity])],
 	providers: [
 		ConfigService,
-		BotConfigService,
+		{
+			provide: BotConfigService,
+			useFactory: async (config: ConfigService, http: HttpService, logger: LoggerService): Promise<BotConfigService> => {
+				const botConfigService = new BotConfigService(logger, http, config);
+				await botConfigService.loadConfigs();
+
+				return botConfigService;
+			},
+			inject: [ConfigService, HttpService, LoggerService],
+		},
 		LoggerService,
 		ImgDownloaderService,
 		CanvasService,
-		DbService,
+		TopPlayersDbService,
 		{
 			provide: Client,
 			useFactory: async (config: BotConfigService, logger: LoggerService): Promise<Client> => {
@@ -45,16 +58,9 @@ import { clientReady } from 'src/utils';
 		AcfunCommandService,
 		PingCommandService,
 		TopPlayersCommandService,
+		GameDealsService,
+		GameDealsDbService,
+		GameDealsCommandService,
 	],
 })
-export class BotModule implements OnModuleInit {
-	constructor(
-		private config: BotConfigService,
-		private playersCheck: PlayersCheckService,
-	) {}
-
-	async onModuleInit(): Promise<void> {
-		await this.config.loadConfigs();
-		this.playersCheck.startPlayersCheck();
-	}
-}
+export class BotModule {}

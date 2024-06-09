@@ -1,18 +1,15 @@
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PlayerSession, TopPlayerDb } from '../models';
 import { PlayerSessionEntity, PlayerSessionParams } from '../player-session.entity';
 import { LoggerService } from '../../logger.service';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class DbService {
-	get playerSessionRepo(): Repository<PlayerSessionEntity> {
-		return this.db.getRepository(PlayerSessionEntity);
-	}
-
+export class TopPlayersDbService {
 	constructor(
 		private logger: LoggerService,
-		private db: DataSource,
+		@InjectRepository(PlayerSessionEntity) private playerSessionRepo: Repository<PlayerSessionEntity>,
 	) {}
 
 	async savePlayerSessions(model: PlayerSession[]): Promise<PlayerSessionEntity[]> {

@@ -6,7 +6,7 @@ import { scheduleJob } from 'node-schedule';
 import { Medals, TopPlayer, TopPlayersPeriod } from '../models';
 import { PlayerSessionParams } from '../player-session.entity';
 import { BotConfigService } from './bot-config.service';
-import { DbService } from './db.service';
+import { TopPlayersDbService } from './top-players-db.service';
 import { CanvasService } from './canvas.service';
 import { interpolate, secondsToHours } from '../../utils';
 
@@ -56,7 +56,7 @@ export class TopPlayersService {
 
 	constructor(
 		private config: BotConfigService,
-		private db: DbService,
+		private db: TopPlayersDbService,
 		private client: Client,
 		private canvas: CanvasService,
 	) {

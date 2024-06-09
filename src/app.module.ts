@@ -6,6 +6,7 @@ import { LoggerService } from './logger.service';
 import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlayerSessionEntity } from './bot/player-session.entity';
+import { GameDealEntity } from './bot/game-deal.entity';
 
 @Module({
 	imports: [
@@ -19,7 +20,7 @@ import { PlayerSessionEntity } from './bot/player-session.entity';
 				username: configService.get<string>('db.username'),
 				password: configService.get<string>('db.password'),
 				database: configService.get<string>('db.database'),
-				entities: [PlayerSessionEntity],
+				entities: [PlayerSessionEntity, GameDealEntity],
 				synchronize: true,
 				charset: 'utf8mb4',
 				timezone: 'Z',

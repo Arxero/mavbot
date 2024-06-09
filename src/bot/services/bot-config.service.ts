@@ -34,6 +34,10 @@ export class BotConfigService {
 		return this.config.topPlayers;
 	}
 
+	get gameDeals(): Pick<Config, 'gameDeals'>['gameDeals'] {
+		return this.config.gameDeals;
+	}
+
 	constructor(
 		private logger: LoggerService,
 		private http: HttpService,

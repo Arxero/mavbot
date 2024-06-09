@@ -37,6 +37,12 @@ export interface Config {
 		isEnabled: boolean;
 		scoreThreshold: number;
 	};
+	gameDeals: {
+		isEnabled: boolean;
+		checkInterval: number;
+		subreddit: string;
+		channelId: string;
+	};
 }
 
 export interface PlayerSession {
@@ -91,4 +97,44 @@ export type CommandReturn = Promise<InteractionResponse | Message | void>;
 export interface Command {
 	command: CommandType;
 	execute(interaction: CommandInteraction): CommandReturn;
+}
+
+export interface RedditResponse {
+	data: {
+		children: [
+			{
+				data: {
+					id: string;
+					thumbnail: string;
+					url: string;
+					title: string;
+					subreddit: string;
+					created: number;
+					preview?: {
+						images: [
+							{
+								source: {
+									url: string;
+								};
+							},
+						];
+					};
+				};
+			},
+		];
+	};
+}
+
+export enum VendorType {
+	Steam = 'steam',
+	EpicGames = 'epicgames',
+}
+
+export interface ProcessedGameDeal {
+	id: string;
+	title: string;
+	url: string;
+	type: VendorType;
+	thumbnail?: string;
+	subreddit: string;
 }
