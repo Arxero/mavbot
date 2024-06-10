@@ -28,9 +28,10 @@ export class GameDealsService {
 			return;
 		}
 		const url = `https://www.reddit.com/r/${this.config.gameDeals.subreddit}/hot.json?limit=25`;
+		const useAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3';
 
 		try {
-			const posts = (await firstValueFrom(this.http.get<RedditResponse>(url))).data;
+			const posts = (await firstValueFrom(this.http.get<RedditResponse>(url, { headers: { 'User-Agent': useAgent } }))).data;
 			this.processGameDeals(posts, interaction);
 			this.logger.log('Gamde Deals loaded successfully.');
 		} catch (error) {
