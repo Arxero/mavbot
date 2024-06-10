@@ -27,10 +27,18 @@ export class GameDealsService {
 		if (!this.config.gameDeals.isEnabled) {
 			return;
 		}
-		const url = `https://www.reddit.com/r/${this.config.gameDeals.subreddit}/hot.json?limit=25`;
+		const url = `https://reddit.com/r/${this.config.gameDeals.subreddit}/hot.json?limit=25`;
+		// const proxy = {
+		// 	protocol: 'https',
+		// 	host: '202.141.233.166',
+		// 	port: 48995,
+		// };
+		const headers = {
+			['User-Agent']: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+		};
 
 		try {
-			const posts = (await firstValueFrom(this.http.get<RedditResponse>(url))).data;
+			const posts = (await firstValueFrom(this.http.get<RedditResponse>(url, { headers }))).data;
 			this.processGameDeals(posts, interaction);
 			this.logger.log('Gamde Deals loaded successfully.');
 		} catch (error) {
