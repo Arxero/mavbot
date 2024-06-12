@@ -142,4 +142,5 @@ export interface ProcessedGameDeal {
 export interface RedditToken {
 	access_token: string;
 	expires_in: number;
+	issued_at: number;
 }

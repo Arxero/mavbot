@@ -58,12 +58,17 @@ export class GameDealsService {
 		const headers = { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' };
 		const nowInSeconds = Date.now() / 1000;
 
-		if (this.redditToken && nowInSeconds < nowInSeconds + (this.redditToken.expires_in + 60)) {
-			return this.redditToken.access_token;
+		if (this.redditToken) {
+			const tokenExpiryTime = this.redditToken.issued_at + this.redditToken.expires_in;
+
+			if (nowInSeconds < tokenExpiryTime + 60) {
+				return this.redditToken.access_token;
+			}
 		}
 
 		try {
 			this.redditToken = (await firstValueFrom(this.http.post<RedditToken>(tokenUrl, qs.stringify(data), { headers }))).data;
+			this.redditToken.issued_at = nowInSeconds;
 
 			return this.redditToken.access_token;
 		} catch (error) {
