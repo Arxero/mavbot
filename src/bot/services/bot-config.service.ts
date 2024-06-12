@@ -38,6 +38,17 @@ export class BotConfigService {
 		return this.config.gameDeals;
 	}
 
+	get reddit(): { appId: string; secret: string; appName: string } {
+		const { appId, secret, appName } = this.configService.get<{ appId: string; secret: string; appName: string }>('reddit') ?? {};
+
+		if (!appId || !secret || !appName) {
+			this.logger.error('Reddit secrets were not supplied. Please fill them!');
+			throw new Error();
+		}
+
+		return { appId, secret, appName };
+	}
+
 	constructor(
 		private logger: LoggerService,
 		private http: HttpService,

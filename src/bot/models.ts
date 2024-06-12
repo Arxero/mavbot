@@ -138,3 +138,8 @@ export interface ProcessedGameDeal {
 	thumbnail?: string;
 	subreddit: string;
 }
+
+export interface RedditToken {
+	access_token: string;
+	expires_in: number;
+}

@@ -16,4 +16,9 @@ export default () => ({
 		serverId: process.env.SERVER_ID,
 		acConfig: process.env.AC_CONFIG,
 	},
+	reddit: {
+		appId: process.env.REDDIT_APP_ID,
+		secret: process.env.REDDIT_SECRET,
+		appName: process.env.REDDIT_APP_NAME,
+	},
 });

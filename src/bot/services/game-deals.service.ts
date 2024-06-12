@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { LoggerService } from 'src/logger.service';
-import { ProcessedGameDeal, RedditResponse, VendorType } from '../models';
+import { ProcessedGameDeal, RedditResponse, RedditToken, VendorType } from '../models';
 import { BotConfigService } from './bot-config.service';
 import { Dictionary, trim } from 'lodash';
 import { delay } from 'src/utils';
@@ -10,9 +10,12 @@ import { GameDealsDbService } from './game-deals-db.service';
 import { GameDealEntity } from '../game-deal.entity';
 import { AttachmentBuilder, BaseMessageOptions, Client, CommandInteraction, EmbedBuilder, TextChannel } from 'discord.js';
 import path from 'path';
+import qs from 'qs';
 
 @Injectable()
 export class GameDealsService {
+	private redditToken: RedditToken;
+
 	constructor(
 		private logger: LoggerService,
 		private http: HttpService,
@@ -27,14 +30,12 @@ export class GameDealsService {
 		if (!this.config.gameDeals.isEnabled) {
 			return;
 		}
-		const url = `https://reddit.com/r/${this.config.gameDeals.subreddit}/hot.json?limit=25`;
-		// const proxy = {
-		// 	protocol: 'https',
-		// 	host: '202.141.233.166',
-		// 	port: 48995,
-		// };
+
+		const url = `https://oauth.reddit.com/r/${this.config.gameDeals.subreddit}/hot.json?limit=25`;
+		const accessToken = await this.getAccessToken();
 		const headers = {
-			['User-Agent']: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+			['User-Agent']: this.config.reddit.appName,
+			['Authorization']: `Bearer ${accessToken}`,
 		};
 
 		try {
@@ -47,6 +48,27 @@ export class GameDealsService {
 			if (!interaction) {
 				await delay(this.config.gameDeals.checkInterval, this.getGameDeals.bind(this));
 			}
+		}
+	}
+
+	private async getAccessToken(): Promise<string> {
+		const tokenUrl = 'https://www.reddit.com/api/v1/access_token';
+		const auth = Buffer.from(`${this.config.reddit.appId}:${this.config.reddit.secret}`).toString('base64');
+		const data = { grant_type: 'client_credentials' };
+		const headers = { Authorization: `Basic ${auth}`, 'Content-Type': 'application/x-www-form-urlencoded' };
+		const nowInSeconds = Date.now() / 1000;
+
+		if (this.redditToken && nowInSeconds < nowInSeconds + (this.redditToken.expires_in + 60)) {
+			return this.redditToken.access_token;
+		}
+
+		try {
+			this.redditToken = (await firstValueFrom(this.http.post<RedditToken>(tokenUrl, qs.stringify(data), { headers }))).data;
+
+			return this.redditToken.access_token;
+		} catch (error) {
+			this.logger.error(`${GameDealsService.name} Error obtaining access token: ${error}`);
+			throw new Error();
 		}
 	}
 
