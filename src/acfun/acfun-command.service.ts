@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CacheType, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
-import { Command, CommandReturn, CommandType, Player } from 'src/bot/models';
-import { LoggerService } from 'src/logger.service';
-import { BotConfigService } from '../bot-config.service';
-import { ImgDownloaderService } from '../img-downloader.service';
+import { APIEmbedField, CacheType, CommandInteraction, EmbedBuilder, SlashCommandBuilder } from 'discord.js';
+import { ImgDownloaderService } from './img-downloader.service';
 import { GameDig } from 'gamedig';
-import { tryAddPlayers } from 'src/utils';
+import { BotConfigService, Command, CommandReturn, CommandType, LoggerService, Player } from '@mavbot/core';
+import moment from 'moment';
 
 @Injectable()
 export class AcfunCommandService implements Command {
@@ -41,7 +39,7 @@ export class AcfunCommandService implements Command {
 					}`,
 				);
 
-			tryAddPlayers(embed, serverInfo.players as Player[]);
+			this.tryAddPlayers(embed, serverInfo.players as Player[]);
 			embed.setFooter({
 				text: `Current Players: ${serverInfo.players.length} / ${serverInfo.maxplayers}`,
 				iconURL: emdbedIconUrl,
@@ -54,5 +52,23 @@ export class AcfunCommandService implements Command {
 		} catch (error) {
 			this.logger.error(`Error while fetching server data: ${error}`);
 		}
+	}
+
+	private tryAddPlayers(message: EmbedBuilder, players: Player[]): void {
+		if (!players.length) {
+			return;
+		}
+
+		const fields: APIEmbedField[] = [
+			{ name: 'Player Name', value: `${players.map(p => p.name || 'unknown').join('\n')}`, inline: true },
+			{ name: 'Score', value: `${players.map(p => p.raw?.score || 0).join('\n')}`, inline: true },
+			{
+				name: 'Time',
+				value: `${players.map(p => moment.utc((p.raw?.time || 0) * 1000).format('H:mm:ss')).join('\n')}`,
+				inline: true,
+			},
+		];
+
+		message.addFields(fields);
 	}
 }

@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CacheType, CommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { Command, CommandReturn, CommandType } from 'src/bot/models';
-import { GameDealsService } from '../game-deals.service';
-import { LoggerService } from 'src/logger.service';
+import { GameDealsService } from './game-deals.service';
+import { Command, CommandReturn, CommandType, LoggerService } from '@mavbot/core';
 
 @Injectable()
 export class GameDealsCommandService implements Command {

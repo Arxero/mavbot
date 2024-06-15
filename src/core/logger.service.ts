@@ -3,7 +3,7 @@ import fs, { WriteStream } from 'fs';
 import { isEmpty } from 'lodash';
 import moment, { Moment } from 'moment';
 import path from 'path';
-import { ensureDirectory } from './utils';
+import { ensureDirectory } from './core.utils';
 
 enum LogLevel {
 	ERROR = 'error',

@@ -1,5 +1,5 @@
 import { BeforeInsert, Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-import { ProcessedGameDeal, VendorType } from './models';
+import { ProcessedGameDeal, VendorType } from './game-deals.models';
 
 @Entity({ name: 'game_deals' })
 export class GameDealEntity {

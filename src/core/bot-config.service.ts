@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { BotSecrets, Config, ExternalConfig } from '../models';
-import { LoggerService } from 'src/logger.service';
+import { LoggerService } from 'src/core/logger.service';
 import { IntentsBitField } from 'discord.js';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { delay } from 'src/utils';
+import { delay } from './core.utils';
+import { BotSecrets, Config } from './core.models';
 
 @Injectable()
 export class BotConfigService {
@@ -57,7 +57,7 @@ export class BotConfigService {
 
 	async loadConfigs(): Promise<void> {
 		try {
-			this.config = (await firstValueFrom(this.http.get<ExternalConfig>(this.bot.acConfig))).data;
+			this.config = (await firstValueFrom(this.http.get<Config>(this.bot.acConfig))).data;
 			this.logger.log('Configs loaded successfully.');
 		} catch (error) {
 			this.logger.error(`Loading settings has failed with Error: ${error}`);

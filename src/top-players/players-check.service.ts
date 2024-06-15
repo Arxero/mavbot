@@ -3,11 +3,9 @@ import { BaseMessageOptions, Client, EmbedBuilder, TextChannel } from 'discord.j
 import { GameDig, QueryResult } from 'gamedig';
 import { Dictionary } from 'lodash';
 import moment from 'moment';
-import { Player, PlayerSession } from '../models';
 import { TopPlayersDbService } from './top-players-db.service';
-import { BotConfigService } from './bot-config.service';
-import { LoggerService } from '../../logger.service';
-import { delay, interpolate } from '../../utils';
+import { BotConfigService, LoggerService, Player, delay, interpolate } from '@mavbot/core';
+import { PlayerSession } from './top-players.models';
 
 @Injectable()
 export class PlayersCheckService {

@@ -3,12 +3,11 @@ import { AttachmentBuilder, BaseMessageOptions, Client, CommandInteraction, Embe
 import { NumericDictionary } from 'lodash';
 import moment from 'moment';
 import { scheduleJob } from 'node-schedule';
-import { Medals, TopPlayer, TopPlayersPeriod } from '../models';
-import { PlayerSessionParams } from '../player-session.entity';
-import { BotConfigService } from './bot-config.service';
+import { PlayerSessionParams } from './player-session.entity';
 import { TopPlayersDbService } from './top-players-db.service';
 import { CanvasService } from './canvas.service';
-import { interpolate, secondsToHours } from '../../utils';
+import { BotConfigService, interpolate } from '@mavbot/core';
+import { TopPlayersPeriod, TopPlayer, Medals } from './top-players.models';
 
 @Injectable()
 export class TopPlayersService {
@@ -131,7 +130,7 @@ export class TopPlayersService {
 		return (await this.db.findTopPlayers(this.params)).map(x => ({
 			name: x.name,
 			score: +x.totalScore,
-			time: secondsToHours(x.totalTime),
+			time: this.secondsToHours(x.totalTime),
 		}));
 	}
 
@@ -176,5 +175,13 @@ export class TopPlayersService {
 
 			return name;
 		});
+	}
+
+	private secondsToHours(seconds: number): string {
+		const milliseconds = seconds * 1000;
+		const hours = Math.floor(moment.duration(milliseconds).asHours());
+		const minutesSeconds = moment.utc(milliseconds).format('mm:ss');
+
+		return `${hours}:${minutesSeconds}`;
 	}
 }

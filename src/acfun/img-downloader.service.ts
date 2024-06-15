@@ -3,9 +3,8 @@ import path from 'path';
 import fs from 'fs';
 import { firstValueFrom } from 'rxjs';
 import { Stream } from 'stream';
-import { ensureDirectory } from '../../utils';
-import { LoggerService } from '../../logger.service';
 import { HttpService } from '@nestjs/axios';
+import { LoggerService, ensureDirectory } from '@mavbot/core';
 
 @Injectable()
 export class ImgDownloaderService {
@@ -22,7 +21,7 @@ export class ImgDownloaderService {
 		}
 
 		ensureDirectory(this.assets, '..');
-		const imagePath = path.resolve(__dirname, '..', '..', '..', this.assets, this.getFileName(url));
+		const imagePath = path.resolve(__dirname, '..', '..', this.assets, this.getFileName(url));
 
 		try {
 			const image = await firstValueFrom(this.http.get<Stream>(url, { responseType: 'stream' }));

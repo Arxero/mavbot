@@ -1,9 +1,9 @@
 import { Repository } from 'typeorm';
-import { PlayerSession, TopPlayerDb } from '../models';
-import { PlayerSessionEntity, PlayerSessionParams } from '../player-session.entity';
-import { LoggerService } from '../../logger.service';
+import { PlayerSessionEntity, PlayerSessionParams } from './player-session.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { LoggerService } from '@mavbot/core';
+import { PlayerSession, TopPlayerDb } from './top-players.models';
 
 @Injectable()
 export class TopPlayersDbService {

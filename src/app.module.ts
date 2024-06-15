@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
-import { BotModule } from './bot/bot.module';
-import config from '../config';
+import config from './core/env.parser';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { LoggerService } from './logger.service';
-import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PlayerSessionEntity } from './bot/player-session.entity';
-import { GameDealEntity } from './bot/game-deal.entity';
+import { PlayerSessionEntity } from './top-players/player-session.entity';
+import { AcfunModule } from './acfun/acfun.module';
+import { TopPlayersModule } from './top-players/top-players.module';
+import { GameDealEntity } from './game-deals/game-deal.entity';
+import { GameDealsModule } from './game-deals/game-deals.module';
+import { CommandsService } from './commands.service';
+import { CoreModule } from './core';
 
 @Module({
 	imports: [
@@ -27,10 +29,12 @@ import { GameDealEntity } from './bot/game-deal.entity';
 			}),
 			inject: [ConfigService],
 		}),
-		BotModule,
-		HttpModule,
+		CoreModule,
+		AcfunModule,
+		TopPlayersModule,
+		GameDealsModule,
 	],
 	controllers: [],
-	providers: [LoggerService],
+	providers: [CommandsService],
 })
 export class AppModule {}

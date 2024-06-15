@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CacheType, CommandInteraction, SlashCommandBuilder } from 'discord.js';
-import { Command, CommandReturn, CommandType, TopPlayersPeriod } from 'src/bot/models';
-import { LoggerService } from 'src/logger.service';
-import { TopPlayersService } from '../top-players.service';
+import { TopPlayersService } from './top-players.service';
+import { Command, CommandReturn, CommandType, LoggerService } from '@mavbot/core';
+import { TopPlayersPeriod } from './top-players.models';
 
 @Injectable()
 export class TopPlayersCommandService implements Command {

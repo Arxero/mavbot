@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LoggerService } from 'src/logger.service';
-import { GameDealEntity } from '../game-deal.entity';
 import { Repository } from 'typeorm';
-import { ProcessedGameDeal } from '../models';
+import { LoggerService } from '@mavbot/core';
+import { GameDealEntity } from './game-deal.entity';
+import { ProcessedGameDeal } from './game-deals.models';
 
 @Injectable()
 export class GameDealsDbService {

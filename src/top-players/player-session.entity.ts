@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { PlayerSession, SortDirection, TopPlayersPeriod } from './models';
+import { SortDirection } from '@mavbot/core';
+import { PlayerSession, TopPlayersPeriod } from './top-players.models';
 
 @Entity({ name: 'player_sessions' })
 export class PlayerSessionEntity {

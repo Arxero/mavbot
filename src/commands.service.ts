@@ -1,24 +1,26 @@
-import { LoggerService } from 'src/logger.service';
 import { Injectable } from '@nestjs/common';
-import { Client, Collection, Events, REST, Routes } from 'discord.js';
-import { BotConfigService } from '../bot-config.service';
-import { Command } from '../../models';
-import { AcfunCommandService } from './acfun-command.service';
-import { PingCommandService } from './ping-command.service';
-import { TopPlayersCommandService } from './top-players-command.service';
-import { GameDealsCommandService } from './game-deals-command.service';
+import { CacheType, Client, Collection, CommandInteraction, Events, REST, Routes, SlashCommandBuilder } from 'discord.js';
+import { AcfunCommandService } from './acfun/acfun-command.service';
+import { TopPlayersCommandService } from './top-players/top-players-command.service';
+import { GameDealsCommandService } from './game-deals/game-deals-command.service';
+import { BotConfigService, Command, CommandReturn, LoggerService } from '@mavbot/core';
 
 @Injectable()
 export class CommandsService {
 	private rest = new REST({ version: '10' }).setToken(this.config.bot.token);
 	private commands = new Collection<string, Command>();
+	private pingCommand: Command = {
+		command: new SlashCommandBuilder().setName('ping').setDescription('Returns pong'),
+		execute(interaction: CommandInteraction<CacheType>): CommandReturn {
+			return interaction.reply('pong');
+		},
+	};
 
 	constructor(
 		private logger: LoggerService,
 		private config: BotConfigService,
 		private client: Client,
 		private acfunCommand: AcfunCommandService,
-		private pingCommand: PingCommandService,
 		private topPlayersCommand: TopPlayersCommandService,
 		private gameDealsCommand: GameDealsCommandService,
 	) {

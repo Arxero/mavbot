@@ -28,6 +28,10 @@
 		"allowJs": false,
 		"esModuleInterop": true,
 		"strictPropertyInitialization": false, // cant cause of entity classes
+
+		"paths": {
+			"@mavbot/core" : ["src/core/index"],
+		  },
 	},
 
 	"exclude": ["node_modules", "dist"]
