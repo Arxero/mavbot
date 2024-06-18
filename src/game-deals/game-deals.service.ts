@@ -100,7 +100,7 @@ export class GameDealsService {
 
 	private async trySaveDeals(deals: ProcessedGameDeal[], interaction?: CommandInteraction): Promise<void> {
 		try {
-			const savedDeals = await this.gameDealsDb.saveGameDeals(deals);
+			const savedDeals = deals.length ? await this.gameDealsDb.saveGameDeals(deals) : [];
 			this.showDeals(savedDeals, interaction);
 		} catch (error) {
 			this.logger.error(error);
