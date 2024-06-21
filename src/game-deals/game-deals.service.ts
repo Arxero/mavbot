@@ -154,7 +154,7 @@ export class GameDealsService {
 	}
 
 	private getImagePath(name: string): string {
-		return path.join(__dirname, '..', '..', '..', '..', 'assets', `${name}.png`);
+		return path.join(__dirname, '..', '..', 'assets', `${name}.png`);
 	}
 
 	private decodeString(str?: string): string | null {
