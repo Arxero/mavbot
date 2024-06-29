@@ -59,7 +59,7 @@ export class GameDealsService {
 		if (this.redditToken) {
 			const tokenExpiryTime = this.redditToken.issued_at + this.redditToken.expires_in;
 
-			if (nowInSeconds < tokenExpiryTime + 60) {
+			if (nowInSeconds < tokenExpiryTime - 60) {
 				return this.redditToken.access_token;
 			}
 		}
@@ -100,7 +100,7 @@ export class GameDealsService {
 
 	private async trySaveDeals(deals: ProcessedGameDeal[], interaction?: CommandInteraction): Promise<void> {
 		try {
-			const savedDeals = deals.length ? await this.gameDealsDb.saveGameDeals(deals) : [];
+			const savedDeals = await this.gameDealsDb.saveGameDeals(deals);
 			this.showDeals(savedDeals, interaction);
 		} catch (error) {
 			this.logger.error(error);

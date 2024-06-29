@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { LoggerService } from '@mavbot/core';
 import { GameDealEntity } from './game-deal.entity';
 import { ProcessedGameDeal } from './game-deals.models';
@@ -12,19 +12,38 @@ export class GameDealsDbService {
 		@InjectRepository(GameDealEntity) private gameDealsRepo: Repository<GameDealEntity>,
 	) {}
 
-	async saveGameDeals(model: ProcessedGameDeal[]): Promise<GameDealEntity[]> {
+	async saveGameDeals(newDeals: ProcessedGameDeal[]): Promise<GameDealEntity[]> {
 		try {
-			const data = model.map(x => new GameDealEntity(x));
-			const savedDeals = await this.gameDealsRepo.save(data);
-			this.logger.log(`Saving Deals: ${model.map(ps => ps.title).join(', ')} to the database.`);
-
-			return savedDeals;
-		} catch ({ sqlMessage }) {
-			if ((sqlMessage as string).includes('Duplicate entry')) {
+			const unsavedDeals = (await this.getUnsaved(newDeals)).map(x => new GameDealEntity(x));
+			if (!unsavedDeals.length) {
 				return [];
 			}
 
-			this.logger.error(`Saving ${GameDealEntity.name} failed with error: ${sqlMessage}`);
+			const savedDeals = await this.gameDealsRepo.save(unsavedDeals);
+			this.logger.log(`Saving Deals: ${newDeals.map(ps => ps.title).join(', ')} to the database.`);
+
+			return savedDeals;
+		} catch ({ sqlMessage }) {
+			this.logger.error(`[${GameDealEntity.name}] Saving deals failed with error: ${sqlMessage}`);
+			throw new Error(sqlMessage);
+		}
+	}
+
+	async getUnsaved(deals: ProcessedGameDeal[]): Promise<ProcessedGameDeal[]> {
+		if (!deals.length) {
+			return [];
+		}
+
+		try {
+			const existingDeals = await this.gameDealsRepo.find({
+				where: {
+					redditId: In(deals.map(x => x.id)),
+				},
+			});
+
+			return deals.filter(d => !existingDeals.some(e => e.redditId === d.id));
+		} catch ({ sqlMessage }) {
+			this.logger.error(`[${GameDealEntity.name}] Getting unsaved deals failed with error: ${sqlMessage}`);
 			throw new Error(sqlMessage);
 		}
 	}
